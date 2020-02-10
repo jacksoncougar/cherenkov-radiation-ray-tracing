@@ -39,7 +39,7 @@
 
 // build functions
 
-#include "BuildShadedObjects.cpp"
+#include "BunndyWorld.cpp"
 
 
 // -------------------------------------------------------------------- default constructor
