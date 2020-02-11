@@ -42,7 +42,7 @@ void World::build(void) {
 
 	Directional* light_ptr1 = new Directional;
 	light_ptr1->set_direction(-20, 20, 30);
-	light_ptr1->scale_radiance(1.5);
+	light_ptr1->scale_radiance(0.80);
 	add_light(light_ptr1);
 
 	// colors
@@ -60,18 +60,20 @@ void World::build(void) {
 
 	// Matte material reflection coefficients - common to all materials
 
-	float ka = 0.02;
-	float kd = 0.7;
+	float ka = 0.3;
+	float kd = 0.5;
 
 	// spheres
+
+
 
 	auto gold = RGBColor{1.00f, 0.71f, 0.29f};
 	auto* material = new Microfacet;
 	material->set_ka(ka);
 	material->set_kd(kd);
-	material->set_cd(gold);
+	material->set_cd(brown);
 
-	material->set_roughness(0.5f);
+	material->set_roughness(0.05f);
 	material->set_specular_colour(gold);
 
 	Sphere* sphere_ptr1 = new Sphere(Point3D(5, 3, 0), 60);
