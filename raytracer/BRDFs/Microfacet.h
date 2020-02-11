@@ -35,7 +35,7 @@ public:
 		Vector3D wh = (wi + wo);
 		wh.normalize();
 
-		auto result = invPI * F(wi, wh) * G(wi, wo, wh) * D(n, wh)
+		auto result = F(wi, wh) * G(wi, wo, wh) * D(n, wh)
 				/ (4.0f * (n * wi) * (n * wo));
 
 		return result;
@@ -56,13 +56,13 @@ private:
 
 	RGBColor F(const Vector3D& wi, const Vector3D& wh) const {
 
-		return F0 + (RGBColor(1) - F0) * std::pow(1.0f - (wi * wh), 5);
+		return F0 + (RGBColor(-1) + F0) * std::pow(1.0f - (wi * wh), 5.0f);
 
 	}
 
 	double G(const Vector3D& wi, const Vector3D& wo, const Vector3D& wh) const {
 
-		const float k = std::pow(r + 1.0f, 2) / 8.0f;
+		const float k = std::pow(r + 1.0f, 2.0f) / 8.0f;
 		auto G1 = [k](float dotProd) {
 			return 1.0f / (dotProd * (1.0f - k) + k);
 		};
