@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?fileVersion 3.1.0?>
+
+<ManagedProjectBuildInfo>
+<project id="wxRayTracer.cdt.managedbuild.target.gnu.exe.1039768097" name="Executable (Gnu)" projectType="cdt.managedbuild.target.gnu.exe">
+<configuration artifactName="wxRayTracer" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.debug.1625318971" name="Debug" parent="cdt.managedbuild.config.gnu.exe.debug">
+<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.1196909574" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.exe.debug">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug">
+<option id="gnu.cpp.compiler.option.preprocessor.def.1283881474" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+<listOptionValue builtIn="false" value="_FILE_OFFSET_BITS=64"/>
+<listOptionValue builtIn="false" value="_LARGE_FILES"/>
+<listOptionValue builtIn="false" value="__WXGTK__"/>
+</option>
+<option id="gnu.cpp.compiler.option.include.paths.1904654694" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/build}&quot;"/>
+<listOptionValue builtIn="false" value="/usr/lib/wx/include/gtk2-unicode-release-2.8"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/UserInterface}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/BRDFs}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/BTDFs}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Cameras}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/GeometricObjects}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Lights}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Mappings}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Materials}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Noises}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Samplers}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Textures}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Tracers}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Utilities}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/World}&quot;"/>
+<listOptionValue builtIn="false" value="/usr/include/wx-2.8"/>
+</option>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1339029769" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.311589363" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
+<tool command="g++" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1024092966" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
+<option id="gnu.cpp.link.option.flags.79633778" superClass="gnu.cpp.link.option.flags" value="-pthread -lwx_gtk2u-2.8" valueType="string"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1729574764" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug"/>
+<macros/>
+</toolChain>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.debug.1625318971./wxRayTracer/raytracer/build/BuildBBCoverPic.cpp" name="BuildBBCoverPic.cpp" rcbsApplicability="disable" resourcePath="/wxRayTracer/raytracer/build/BuildBBCoverPic.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736./wxRayTracer/raytracer/build/BuildBBCoverPic.cpp">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736./wxRayTracer/raytracer/build/BuildBBCoverPic.cpp" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.debug.1625318971./wxRayTracer/raytracer/build/BuildImage2.cpp" name="BuildImage2.cpp" rcbsApplicability="disable" resourcePath="/wxRayTracer/raytracer/build/BuildImage2.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736./wxRayTracer/raytracer/build/BuildImage2.cpp">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736./wxRayTracer/raytracer/build/BuildImage2.cpp" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.debug.1625318971./wxRayTracer/raytracer/build/BuildMultipleObjects.cpp" name="BuildMultipleObjects.cpp" rcbsApplicability="disable" resourcePath="/wxRayTracer/raytracer/build/BuildMultipleObjects.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736./wxRayTracer/raytracer/build/BuildMultipleObjects.cpp">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736./wxRayTracer/raytracer/build/BuildMultipleObjects.cpp" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.debug.1625318971./wxRayTracer/raytracer/build/BuildSingleSphere.cpp" name="BuildSingleSphere.cpp" rcbsApplicability="disable" resourcePath="/wxRayTracer/raytracer/build/BuildSingleSphere.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736./wxRayTracer/raytracer/build/BuildSingleSphere.cpp">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736./wxRayTracer/raytracer/build/BuildSingleSphere.cpp" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.debug.1625318971./wxRayTracer/raytracer/build/BuildImage1.cpp" name="BuildImage1.cpp" rcbsApplicability="disable" resourcePath="/wxRayTracer/raytracer/build/BuildImage1.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736./wxRayTracer/raytracer/build/BuildImage1.cpp">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736./wxRayTracer/raytracer/build/BuildImage1.cpp" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.debug.1625318971./wxRayTracer/raytracer/build/BuildShadedObjects.cpp" name="BuildShadedObjects.cpp" rcbsApplicability="disable" resourcePath="/wxRayTracer/raytracer/build/BuildShadedObjects.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736./wxRayTracer/raytracer/build/BuildShadedObjects.cpp">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736./wxRayTracer/raytracer/build/BuildShadedObjects.cpp" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736"/>
+</resourceConfiguration>
+</configuration>
+<configuration artifactName="wxRayTracer" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.release.2090793527" name="Release" parent="cdt.managedbuild.config.gnu.exe.release">
+<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.835269589" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
+<option id="gnu.cpp.compiler.option.preprocessor.def.1321618184" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+<listOptionValue builtIn="false" value="_FILE_OFFSET_BITS=64"/>
+<listOptionValue builtIn="false" value="__WXGTK__"/>
+<listOptionValue builtIn="false" value="_LARGE_FILES"/>
+</option>
+<option id="gnu.cpp.compiler.option.include.paths.784344221" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/BRDFs}&quot;"/>
+<listOptionValue builtIn="false" value="/usr/lib/wx/include/gtk2-unicode-release-2.8"/>
+<listOptionValue builtIn="false" value="/usr/include/wx-2.8"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/BTDFs}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/build}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Cameras}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/GeometricObjects}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Lights}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Mappings}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Materials}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Noises}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Samplers}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Textures}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Tracers}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/UserInterface}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Utilities}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/World}&quot;"/>
+</option>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.606730780" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release"/>
+<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.2079549425" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
+<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.601719557" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
+<option id="gnu.cpp.link.option.flags.1013865371" superClass="gnu.cpp.link.option.flags" value="-pthread -lwx_gtk2u-2.8" valueType="string"/>
+</tool>
+<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.363529490" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release"/>
+<macros/>
+</toolChain>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.2090793527./wxRayTracer/raytracer/build/BuildBBCoverPic.cpp" name="BuildBBCoverPic.cpp" rcbsApplicability="disable" resourcePath="/wxRayTracer/raytracer/build/BuildBBCoverPic.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887./wxRayTracer/raytracer/build/BuildBBCoverPic.cpp">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887./wxRayTracer/raytracer/build/BuildBBCoverPic.cpp" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.2090793527./wxRayTracer/raytracer/build/BuildImage1.cpp" name="BuildImage1.cpp" rcbsApplicability="disable" resourcePath="/wxRayTracer/raytracer/build/BuildImage1.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887./wxRayTracer/raytracer/build/BuildImage1.cpp">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887./wxRayTracer/raytracer/build/BuildImage1.cpp" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.2090793527./wxRayTracer/raytracer/build/BuildImage2.cpp" name="BuildImage2.cpp" rcbsApplicability="disable" resourcePath="/wxRayTracer/raytracer/build/BuildImage2.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887./wxRayTracer/raytracer/build/BuildImage2.cpp">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887./wxRayTracer/raytracer/build/BuildImage2.cpp" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.2090793527./wxRayTracer/raytracer/build/BuildMultipleObjects.cpp" name="BuildMultipleObjects.cpp" rcbsApplicability="disable" resourcePath="/wxRayTracer/raytracer/build/BuildMultipleObjects.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887./wxRayTracer/raytracer/build/BuildMultipleObjects.cpp">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887./wxRayTracer/raytracer/build/BuildMultipleObjects.cpp" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887"/>
+</resourceConfiguration>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.gnu.exe.release.2090793527./wxRayTracer/raytracer/build/BuildSingleSphere.cpp" name="BuildSingleSphere.cpp" rcbsApplicability="disable" resourcePath="/wxRayTracer/raytracer/build/BuildSingleSphere.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887./wxRayTracer/raytracer/build/BuildSingleSphere.cpp">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887./wxRayTracer/raytracer/build/BuildSingleSphere.cpp" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887"/>
+</resourceConfiguration>
+</configuration>
+<macros/>
+</project>
+</ManagedProjectBuildInfo>
