@@ -38,7 +38,7 @@ private:
 
 	Lambertian* ambient_brdf;
 	Lambertian* diffuse_brdf;
-	GlossySpecularMicrofacet<DistributionFunc::Beckmann>* specular_brdf;
+	GlossySpecularMicrofacet<DistributionFunc::TrowbridgeReitz>* specular_brdf;
 };
 
 inline void Microfacet::set_ka(const float ka) {

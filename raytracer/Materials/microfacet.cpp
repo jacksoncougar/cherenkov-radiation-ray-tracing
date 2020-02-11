@@ -4,7 +4,7 @@
 
 Microfacet::Microfacet(void) :
 		Material(), ambient_brdf(new Lambertian), diffuse_brdf(new Lambertian), specular_brdf(
-				new GlossySpecularMicrofacet<DistributionFunc::Beckmann>) {
+				new GlossySpecularMicrofacet<DistributionFunc::TrowbridgeReitz>) {
 }
 
 // ---------------------------------------------------------------- copy constructor
