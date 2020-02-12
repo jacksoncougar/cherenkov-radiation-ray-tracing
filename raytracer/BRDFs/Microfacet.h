@@ -8,6 +8,7 @@
 #ifndef RAYTRACER_BRDFS_MICROFACET_H_
 #define RAYTRACER_BRDFS_MICROFACET_H_
 
+#include <cmath>
 #include "BRDF.h"
 #include "Constants.h"
 

@@ -8,15 +8,24 @@
 // The spheres are the same as those in the Chapter 14 page one image. 
 
 
+#include <World.h>
+#include <Directional.h>
+#include <Pinhole.h>
+#include <RayCast.h>
+#include <Microfacet.h>
+#include <Matte.h>
+#include <Plane.h>
+#include <GlossySpecular.h>
+
 void World::build(void) {
-	int num_samples = 1;
+    int num_samples = 1;
 
-	// view plane  
+    // view plane
 
-	vp.set_hres(400);
-	vp.set_vres(400);
-	vp.set_pixel_size(0.5);
-	vp.set_samples(num_samples);
+    vp.set_hres(400);
+    vp.set_vres(400);
+    vp.set_pixel_size(0.5);
+    vp.set_samples(num_samples);
 
 	// the ambient light here is the same as the default set in the World
 	// constructor, and can therefore be left out
