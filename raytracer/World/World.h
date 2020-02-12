@@ -21,6 +21,7 @@
 #include "Sphere.h"
 #include "Ray.h"
 #include "SingleSphere.h"
+#include "Grid.h"
 
 #include "Camera.h"
 #include "Light.h"
