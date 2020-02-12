@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(tracer LANGUAGES CXX)
+project(tracer LANGUAGES C CXX)
 
 set(wxWidgets_USE_UNICODE)
 
@@ -38,16 +38,36 @@ set(SRC World/ViewPlane.cpp
         Lights/Directional.h
         Lights/Light.cpp
         Lights/Light.h
+        GeometricObjects/Compound.cpp
+        GeometricObjects/Compound.h
         GeometricObjects/GeometricObject.cpp
         GeometricObjects/GeometricObject.h
+        GeometricObjects/Grid.cpp
+        GeometricObjects/Grid.h
         GeometricObjects/Plane.cpp
         GeometricObjects/Plane.h
         GeometricObjects/Sphere.cpp
         GeometricObjects/Sphere.h
+        GeometricObjects/Instance.cpp
+        GeometricObjects/Instance.h
+        GeometricObjects/Triangles/FlatMeshTriangle.cpp
+        GeometricObjects/Triangles/FlatMeshTriangle.h
+        GeometricObjects/Triangles/MeshTriangle.cpp
+        GeometricObjects/Triangles/MeshTriangle.h
+        GeometricObjects/Triangles/SmoothMeshTriangle.cpp
+        GeometricObjects/Triangles/SmoothMeshTriangle.h
+        GeometricObjects/Triangles/SmoothTriangle.cpp
+        GeometricObjects/Triangles/SmoothTriangle.h
+        GeometricObjects/Triangles/Triangle.cpp
+        GeometricObjects/Triangles/Triangle.h
         Cameras/Camera.cpp
         Cameras/Camera.h
         Cameras/Pinhole.cpp
         Cameras/Pinhole.h
+        Utilities/BBox.h
+        Utilities/BBox.cpp
+        Utilities/ply.cpp
+        Utilities/ply.h
         Utilities/Constants.h
         Utilities/Maths.h
         Utilities/Matrix.cpp
@@ -76,6 +96,7 @@ target_include_directories(tracer PUBLIC ${wxWidgets_INCLUDE_DIRS}
         PUBLIC build
         PUBLIC Cameras
         PUBLIC GeometricObjects
+        PUBLIC GeometricObjects/Triangles
         PUBLIC Lights
         PUBLIC Materials
         PUBLIC Tracers

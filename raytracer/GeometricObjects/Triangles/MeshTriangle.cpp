@@ -5,6 +5,7 @@
 
 // the copy constructor and assignment operator do not clone the mesh
 
+#include <algorithm>
 #include "Constants.h"
 #include "MeshTriangle.h"
 #include "Maths.h"

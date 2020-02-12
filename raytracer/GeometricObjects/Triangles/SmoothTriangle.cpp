@@ -3,6 +3,9 @@
 //	This C++ code is licensed under the GNU General Public License Version 2.
 //	See the file COPYING.txt for the full license.
 
+
+#include <algorithm>
+
 #include "Constants.h"
 #include "Maths.h"
 #include "SmoothTriangle.h"
