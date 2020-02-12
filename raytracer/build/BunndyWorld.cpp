@@ -63,10 +63,6 @@ void World::build(void) {
 	float ka = 0.3;
 	float kd = 0.5;
 
-	// spheres
-
-
-
 	auto gold = RGBColor{1.00f, 0.71f, 0.29f};
 	auto* material = new Microfacet;
 	material->set_ka(ka);
@@ -75,6 +71,14 @@ void World::build(void) {
 
 	material->set_roughness(0.05f);
 	material->set_specular_colour(gold);
+
+	// bunny
+
+	auto bunny = new Grid();
+	bunny->read_smooth_triangles("/home/ugc/jackson.wiebe1/PLYFiles/Stanford Bunny/Bunny69K.ply");
+	bunny->set_material(material);
+
+	// spheres
 
 	Sphere* sphere_ptr1 = new Sphere(Point3D(5, 3, 0), 60);
 	sphere_ptr1->set_material(material);
