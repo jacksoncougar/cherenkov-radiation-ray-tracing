@@ -7,6 +7,8 @@
 #include "Triangle.h"
 #include "Maths.h"
 
+using std::min;
+
 // ----------------------------------------------------------------  default constructor
 
 Triangle::Triangle (void)

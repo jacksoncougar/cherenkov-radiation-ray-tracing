@@ -8,6 +8,8 @@
 #include "Constants.h"
 #include "MeshTriangle.h"
 #include "Maths.h"
+
+using std::min;
 						
 
 // ----------------------------------------------------------------  default constructor

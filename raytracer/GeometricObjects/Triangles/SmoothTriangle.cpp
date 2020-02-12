@@ -7,6 +7,8 @@
 #include "Maths.h"
 #include "SmoothTriangle.h"
 
+using std::min;
+
 // ----------------------------------------------------------------  default constructor
 
 SmoothTriangle::SmoothTriangle(void)
