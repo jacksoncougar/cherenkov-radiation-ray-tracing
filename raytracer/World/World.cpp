@@ -27,7 +27,6 @@
 // materials
 
 #include "Matte.h"
-#include "microfacet.h"
 
 // utilities
 

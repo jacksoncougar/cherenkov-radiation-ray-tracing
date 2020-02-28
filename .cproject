@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="cdt.managedbuild.config.gnu.exe.debug.1625318971">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.debug.1625318971" moduleId="org.eclipse.cdt.core.settings" name="Debug">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="" artifactName="wxRayTracer" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.debug.1625318971" name="Debug" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="cdt.managedbuild.config.gnu.exe.debug">
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.1625318971.1096711162" name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.1196909574" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.exe.debug">
+							<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.debug.1381760553" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.debug"/>
+							<builder buildPath="${workspace_loc:/wxRayTracer}/Debug" id="cdt.managedbuild.target.gnu.builder.exe.debug.1126477789" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.debug"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.1283881474" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_FILE_OFFSET_BITS=64"/>
+									<listOptionValue builtIn="false" value="_LARGE_FILES"/>
+									<listOptionValue builtIn="false" value="__WXGTK__"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1904654694" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/build}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/lib64/wx/include/gtk3-unicode-3.0"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/UserInterface}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/BRDFs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/BTDFs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Cameras}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/GeometricObjects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/GeometricObjects/Triangles}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Lights}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Mappings}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Materials}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Noises}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Samplers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Textures}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Tracers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Utilities}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/World}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/wx-3.0"/>
+								</option>
+								<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.1918010349" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+								<option defaultValue="gnu.cpp.compiler.debugging.level.max" id="gnu.cpp.compiler.exe.debug.option.debugging.level.1144036868" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.428423991" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++1y" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1153204454" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1339029769" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
+								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.exe.debug.option.optimization.level.2027729076" name="Optimization Level" superClass="gnu.c.compiler.exe.debug.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<option defaultValue="gnu.c.debugging.level.max" id="gnu.c.compiler.exe.debug.option.debugging.level.1516397672" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.368224499" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.311589363" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
+							<tool command="g++" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1024092966" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
+								<option id="gnu.cpp.link.option.flags.79633778" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="" valueType="string"/>
+								<option id="gnu.cpp.link.option.pthread.1348558794" name="Support for pthread (-pthread)" superClass="gnu.cpp.link.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.471123363" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
+									<listOptionValue builtIn="false" value="wx_baseu-3.0"/>
+									<listOptionValue builtIn="false" value="wx_gtk3u_core-3.0"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.237088950" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1729574764" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1953271287" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1649605548" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="raytracer/build/BunndyWorld.cpp|raytracer/build/BuildBBCoverPic.cpp|raytracer/build/BuildImage2.cpp|raytracer/build/BuildMultipleObjects.cpp|raytracer/build/BuildSingleSphere.cpp|raytracer/build/BuildImage1.cpp|raytracer/build/BuildShadedObjects.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="cdt.managedbuild.config.gnu.exe.release.2090793527">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.release.2090793527" moduleId="org.eclipse.cdt.core.settings" name="Release">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="" artifactName="wxRayTracer" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.gnu.exe.release.2090793527" name="Release" optionalBuildProperties="" parent="cdt.managedbuild.config.gnu.exe.release">
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.release.2090793527.1277763051" name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.835269589" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
+							<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.release.236783520" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.release"/>
+							<builder buildPath="${workspace_loc:/wxRayTracer}/Release" id="cdt.managedbuild.target.gnu.builder.exe.release.141881715" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.1321618184" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_FILE_OFFSET_BITS=64"/>
+									<listOptionValue builtIn="false" value="__WXGTK__"/>
+									<listOptionValue builtIn="false" value="_LARGE_FILES"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.784344221" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/BRDFs}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/lib/wx/include/gtk2-unicode-release-2.8"/>
+									<listOptionValue builtIn="false" value="/usr/include/wx-2.8"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/BTDFs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/build}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Cameras}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/GeometricObjects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Lights}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Mappings}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Materials}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Noises}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Samplers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Textures}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Tracers}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/UserInterface}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Utilities}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/World}&quot;"/>
+								</option>
+								<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1757178194" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+								<option defaultValue="gnu.cpp.compiler.debugging.level.none" id="gnu.cpp.compiler.exe.release.option.debugging.level.2130544016" name="Debug Level" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2126239942" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.606730780" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
+								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.exe.release.option.optimization.level.182307558" name="Optimization Level" superClass="gnu.c.compiler.exe.release.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<option defaultValue="gnu.c.debugging.level.none" id="gnu.c.compiler.exe.release.option.debugging.level.1042428521" name="Debug Level" superClass="gnu.c.compiler.exe.release.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1451939473" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.2079549425" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.601719557" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
+								<option id="gnu.cpp.link.option.flags.1013865371" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="-pthread -lwx_gtk2u-2.8" valueType="string"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.307249135" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.363529490" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.600669665" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1493661051" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="raytracer/build/BunndyWorld.cpp|raytracer/build/BuildBBCoverPic.cpp|raytracer/build/BuildImage1.cpp|raytracer/build/BuildImage2.cpp|raytracer/build/BuildMultipleObjects.cpp|raytracer/build/BuildSingleSphere.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="wxRayTracer.cdt.managedbuild.target.gnu.exe.1039768097" name="Executable (Gnu)" projectType="cdt.managedbuild.target.gnu.exe"/>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2090793527;cdt.managedbuild.config.gnu.exe.release.2090793527.1277763051;cdt.managedbuild.tool.gnu.c.compiler.exe.release.606730780;cdt.managedbuild.tool.gnu.c.compiler.input.1451939473">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1625318971;cdt.managedbuild.config.gnu.exe.debug.1625318971.1096711162;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1339029769;cdt.managedbuild.tool.gnu.c.compiler.input.368224499">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2090793527;cdt.managedbuild.config.gnu.exe.release.2090793527.1277763051;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.264851887;cdt.managedbuild.tool.gnu.cpp.compiler.input.2126239942">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1625318971;cdt.managedbuild.config.gnu.exe.debug.1625318971.1096711162;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1345146736;cdt.managedbuild.tool.gnu.cpp.compiler.input.1153204454">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/wxRayTracer"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/wxRayTracer"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+</cproject>
