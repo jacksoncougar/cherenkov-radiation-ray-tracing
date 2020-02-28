@@ -90,7 +90,7 @@ set(SRC World/ViewPlane.cpp
         Utilities/Vector3D.h)
 
 add_executable(tracer WIN32 ${SRC})
-target_link_libraries(tracer PUBLIC ${wxWidgets_LIBRARIES})
+target_link_libraries(tracer PUBLIC ${wxWidgets_LIBRARIES} stb)
 target_include_directories(tracer PUBLIC ${wxWidgets_INCLUDE_DIRS}
         PUBLIC BRDFs
         PUBLIC build

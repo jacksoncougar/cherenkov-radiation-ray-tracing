@@ -30,6 +30,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/build}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/lib64/wx/include/gtk3-unicode-3.0"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/UserInterface}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/3rd-party/stb}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/BRDFs}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/BTDFs}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/wxRayTracer/raytracer/Cameras}&quot;"/>
@@ -48,7 +49,7 @@
 								</option>
 								<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.1918010349" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option defaultValue="gnu.cpp.compiler.debugging.level.max" id="gnu.cpp.compiler.exe.debug.option.debugging.level.1144036868" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
-								<option id="gnu.cpp.compiler.option.dialect.std.428423991" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++1y" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.428423991" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++1y" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1153204454" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1339029769" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">

@@ -16,6 +16,7 @@
 #include <Plane.h>
 #include <GlossySpecular.h>
 #include <Instance.h>
+#include "Image.h"
 
 void World::build(void) {
 	int num_samples = 1;
@@ -58,6 +59,8 @@ void World::build(void) {
 	light_ptr1->set_direction(0, 20, 0);
 	light_ptr1->scale_radiance(0.80);
 	add_light(light_ptr2);
+
+	Image test("assets/ppm/fig-10b.ppm");
 
 	// colors
 
