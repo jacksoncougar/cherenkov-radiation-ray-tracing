@@ -17,6 +17,7 @@
 #include <GlossySpecular.h>
 #include <Instance.h>
 #include "Image.h"
+#include "ImageTexture.h"
 
 void World::build(void) {
 	int num_samples = 1;
@@ -61,6 +62,7 @@ void World::build(void) {
 	add_light(light_ptr2);
 
 	Image test("assets/ppm/fig-10b.ppm");
+	ImageTexture texture;
 
 	// colors
 
@@ -98,10 +100,10 @@ void World::build(void) {
 
 	// bunny
 
+	auto attributeBasedMaterial = std::make_shared<svAttributeBasedMapping>();
+
 	Grid *bunny = new Grid(new Mesh);
-	bunny->read_smooth_triangles(
-			"/home/ugc/jackson.wiebe1/PLYFiles/Stanford Bunny/Bunny69K.ply");
-	//bunny->set_material(material);
+	bunny->read_smooth_triangles("assets/ply/Venus.ply")
 	bunny->setup_cells();
 
 	Instance *instance = new Instance(bunny);
@@ -109,7 +111,7 @@ void World::build(void) {
 	instance->translate(0, -5, 0);
 	instance->rotate_y(35.0f);
 	instance->rotate_x(15.0f);
-	instance->set_material(material);
+	instance->set_material(attributeBasedMaterial);
 	instance->compute_bounding_box();
 
 	add_object(instance);

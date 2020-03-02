@@ -1,3 +1,5 @@
-build/
-Debug*/
-cmake-build*/
+/build/
+/Debug*/
+/cmake-build*/
+/out/*
+/.vs/

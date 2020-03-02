@@ -109,7 +109,9 @@ SmoothMeshTriangle::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
 	tmin 				= t;
 	sr.normal 			= interpolate_normal(beta, gamma); // for smooth shading
 	sr.local_hit_point 	= ray.o + t * ray.d;	
-	
+	sr.u = interpolate_u(beta, gamma);
+	sr.v = interpolate_v(beta, gamma);
+
 	return (true);	
 }  
 

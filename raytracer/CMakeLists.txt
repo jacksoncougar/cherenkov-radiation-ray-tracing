@@ -3,7 +3,7 @@ project(tracer LANGUAGES C CXX)
 
 set(wxWidgets_USE_UNICODE)
 
-find_package(wxWidgets COMPONENTS net core base REQUIRED)
+find_package(wxWidgets COMPONENTS core REQUIRED)
 include(${wxWidgets_USE_FILE})
 
 set(SRC World/ViewPlane.cpp
@@ -64,6 +64,9 @@ set(SRC World/ViewPlane.cpp
         Cameras/Camera.h
         Cameras/Pinhole.cpp
         Cameras/Pinhole.h
+        Utilities/Image.cpp
+        Utilities/Image.h
+        Utilities/ImageTexture.h
         Utilities/BBox.h
         Utilities/BBox.cpp
         Utilities/ply.cpp
