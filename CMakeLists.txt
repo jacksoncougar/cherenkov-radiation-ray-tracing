@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(wxraytracer LANGUAGES CXX)
 
-add_library(stb 3rd-party/stb/stb_image.h raytracer/Materials/svattributebasedmapping.cpp raytracer/Materials/svattributebasedmapping.hpp raytracer/BRDFs/attribute.cpp raytracer/BRDFs/attribute.hpp)
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE 3rd-party/stb)
+
+add_library(tinyply STATIC 3rd-party/tinyply/tinyply.cpp)
+target_include_directories(tinyply PUBLIC 3rd-party/tinyply)
 
 add_subdirectory(raytracer)

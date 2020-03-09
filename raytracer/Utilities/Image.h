@@ -13,6 +13,7 @@
 #include "RGBColor.h"
 #include "ShadeRec.h"
 
+#include <cassert>
 #include <vector>
 #include <string>
 #include <memory>
@@ -21,28 +22,31 @@ class Image {
 
 public:
 
-	std::unique_ptr<unsigned char> texel_data;
-	int width;
-	int height;
-	int channels;
+    std::unique_ptr<unsigned char> texel_data;
+    int width{};
+    int height{};
+    int channels{};
 
-	Image(std::string filename);
+    Image(const std::string &filename);
 
-	template <typename T>
-	T sample(int x, int y) {
+    template<typename T>
+    T sample(int x, int y) {
 
-		auto bits_per_texel = channels * sizeof(char);
-		auto scanline = width * bits_per_texel;
-		auto offset = x + y * scanline;
+        auto bits_per_texel = channels * sizeof(char);
+        auto scanline = width * bits_per_texel;
+        auto offset = x + y * scanline;
 
-		assert(channels == 3);
+        assert(channels == 3);
 
-		auto r = *(texel_data.get() + offset + 0) / std::numeric_limits<unsigned char>::max());
-		auto g = *(texel_data.get() + offset + 1) / std::numeric_limits<unsigned char>::max());
-		auto b = *(texel_data.get() + offset + 2) / std::numeric_limits<unsigned char>::max());
+        auto r = *(texel_data.get() + offset + 0) /
+                 static_cast<float>(std::numeric_limits<unsigned char>::max());
+        auto g = *(texel_data.get() + offset + 1) /
+                 static_cast<float>(std::numeric_limits<unsigned char>::max());
+        auto b = *(texel_data.get() + offset + 2) /
+                 static_cast<float>(std::numeric_limits<unsigned char>::max());
 
-		return { r,g,b };
-	}
+        return {r, g, b};
+    }
 
 };
 

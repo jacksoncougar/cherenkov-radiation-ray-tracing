@@ -134,7 +134,7 @@ inline bool RGBColor::operator==(const RGBColor& c) const {
 // the average of the three components
 
 inline float RGBColor::average(void) const {
-	return (0.333333333333 * (r + g + b));
+    return (0.333333333333f * (r + g + b));
 }
 
 // inlined non-member function

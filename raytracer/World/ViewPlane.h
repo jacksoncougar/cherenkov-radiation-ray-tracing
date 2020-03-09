@@ -76,8 +76,8 @@ ViewPlane::set_pixel_size(const float size) {
 
 inline void
 ViewPlane::set_gamma(const float g) {
-	gamma = g;
-	inv_gamma = 1.0 / gamma;
+    gamma = g;
+    inv_gamma = 1.0f / gamma;
 }
 
 

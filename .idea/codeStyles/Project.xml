@@ -1,0 +1,13 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <option name="AUTODETECT_INDENTS" value="false" />
+    <option name="RIGHT_MARGIN" value="100" />
+    <Objective-C>
+      <option name="FUNCTION_NON_TOP_AFTER_RETURN_TYPE_WRAP" value="0" />
+      <option name="FUNCTION_TOP_AFTER_RETURN_TYPE_WRAP" value="0" />
+    </Objective-C>
+    <codeStyleSettings language="ObjectiveC">
+      <option name="KEEP_LINE_BREAKS" value="false" />
+    </codeStyleSettings>
+  </code_scheme>
+</component>

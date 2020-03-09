@@ -9,7 +9,7 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
-
+#include <fstream>
 #include "Constants.h"
 
 #include "Vector3D.h"
@@ -23,44 +23,33 @@
 #include "Triangle.h"
 #include "SmoothTriangle.h"
 
-#include "ply.h"
+#include "tinyply.h"
+
 
 typedef enum {
     flat, smooth
 } TriangleType;
 
 using namespace std;
-
-namespace std {
-    template<class T>
-    constexpr const T &clamp(const T &v, const T &lo, const T &hi) {
-        return (v < lo) ? lo : (hi < v) ? hi : v;
-    }
-}
-
 using std::clamp;
 
 // ----------------------------------------------------------------  default constructor
 
-Grid::Grid(void) :
-        Compound(), nx(0), ny(0), nz(0), mesh_ptr(new Mesh), reverse_normal(
-        false) {
+Grid::Grid(void) : Compound(), nx(0), ny(0), nz(0), mesh_ptr(new Mesh), reverse_normal(false) {
     // The cells array will be empty
 }
 
 // ----------------------------------------------------------------  constructor
 // for rendering triangle meshes
 
-Grid::Grid(Mesh *_mesh_ptr) :
-        Compound(), nx(0), ny(0), nz(0), mesh_ptr(_mesh_ptr), reverse_normal(
-        false) {
+Grid::Grid(Mesh *_mesh_ptr)
+    : Compound(), nx(0), ny(0), nz(0), mesh_ptr(_mesh_ptr), reverse_normal(false) {
     // The cells array will be empty
 }
 
 // ---------------------------------------------------------------- clone
 
-Grid *
-Grid::clone(void) const {
+Grid *Grid::clone(void) const {
     return (new Grid(*this));
 }
 
@@ -73,8 +62,7 @@ Grid::Grid(const Grid &grid) {
 // ---------------------------------------------------------------- assignment operator
 // not implemented
 
-Grid &
-Grid::operator=(const Grid &rhs) {
+Grid &Grid::operator=(const Grid &rhs) {
     return (*this);
 }
 
@@ -206,10 +194,9 @@ void Grid::setup_cells(void) {
     }
 
     cout << "num_cells =" << num_cells << endl;
-    cout << "numZeroes = " << num_zeroes << "  numOnes = " << num_ones
-         << "  numTwos = " << num_twos << endl;
-    cout << "numThrees = " << num_threes << "  numGreater = " << num_greater
+    cout << "numZeroes = " << num_zeroes << "  numOnes = " << num_ones << "  numTwos = " << num_twos
          << endl;
+    cout << "numThrees = " << num_threes << "  numGreater = " << num_greater << endl;
 
     // erase the temporary counts vector
 
@@ -287,6 +274,7 @@ void Grid::read_flat_triangles(char *file_name) {
 // ----------------------------------------------------------------------------- read_smooth_triangles
 
 void Grid::read_smooth_triangles(char *file_name) {
+
     read_ply_file(file_name, smooth);
     compute_mesh_normals();
 }
@@ -321,182 +309,186 @@ void Grid::read_ply_file(char *file_name, const int triangle_type) {
     // list of property information for a vertex
     // this varies depending on what you are reading from the file
 
-    PlyProperty vert_props[] = {{"x", PLY_FLOAT, PLY_FLOAT, offsetof(Vertex,
-                                                                     x),         0, 0, 0, 0},
-                                {"y", PLY_FLOAT, PLY_FLOAT, offsetof(Vertex, y),
-                                                                                 0, 0, 0, 0},
-                                {"z", PLY_FLOAT, PLY_FLOAT, offsetof(Vertex, z), 0,
-                                                                                    0, 0, 0}};
+    std::unique_ptr<std::istream> file_stream;
+    std::vector<uint8_t> byte_buffer;
 
-    // list of property information for a face.
-    // there is a single property, which is a list
-    // this is the same for all files
+    using namespace tinyply;
+    bool preload_into_memory = true;
+    std::string filepath(file_name);
 
-    PlyProperty face_props[] = {{"vertex_indices", PLY_INT, PLY_INT, offsetof(
-                                                                             Face,
-                                                                             verts), 1, PLY_UCHAR, PLY_UCHAR, offsetof(
-                                                                                                                      Face,
-                                                                                                                      nverts)}};
+    try {
 
-    // local variables
+        file_stream.reset(new std::ifstream(filepath, std::ios::binary));
+        if (!file_stream || file_stream->fail())
+            throw std::runtime_error(
+                "file_stream failed to open " + filepath
+            );
 
-    int i, j;
-    PlyFile *ply;
-    int nelems;    // number of element types: 2 in our case - vertices and faces
-    char **elist;
-    int file_type;
-    float version;
-    int nprops;        // number of properties each element has
-    int num_elems;// number of each type of element: number of vertices or number of faces
-    PlyProperty **plist;
-    Vertex **vlist;
-    Face **flist;
-    char *elem_name;
-    int num_comments;
-    char **comments;
-    int num_obj_info;
-    char **obj_info;
+        file_stream->seekg(0, std::ios::end);
+        const float size_mb = file_stream->tellg() * float(1e-6);
+        file_stream->seekg(0, std::ios::beg);
 
-    // open a ply file for reading
+        PlyFile file;
+        file.parse_header(*file_stream);
 
-    ply = ply_open_for_reading(file_name, &nelems, &elist, &file_type, &version);
+        std::cout << "\t[ply_header] Type: " << (file.is_binary_file() ? "binary" : "ascii")
+                  << std::endl;
+        for (const auto &c : file.get_comments())
+            std::cout << "\t[ply_header] Comment: " << c << std::endl;
+        for (const auto &c : file.get_info())
+            std::cout << "\t[ply_header] Info: " << c << std::endl;
 
-    // print what we found out about the file
-
-    printf("version %f\n", version);
-    printf("type %d\n", file_type);
-
-    // go through each kind of element that we learned is in the file and read them
-
-    for (i = 0; i < nelems; i++) { // there are only two elements in our files: vertices and faces
-        // get the description of the first element
-
-        elem_name = elist[i];
-        plist = ply_get_element_description(ply, elem_name, &num_elems,
-                                            &nprops);
-
-        // print the name of the element, for debugging
-
-        cout << "element name  " << elem_name << "  num elements = "
-             << num_elems << "  num properties =  " << nprops << endl;
-
-        // if we're on vertex elements, read in the properties
-
-        if (equal_strings("vertex", elem_name)) {
-            // set up for getting vertex elements
-            // the three properties are the vertex coordinates
-
-            ply_get_property(ply, elem_name, &vert_props[0]);
-            ply_get_property(ply, elem_name, &vert_props[1]);
-            ply_get_property(ply, elem_name, &vert_props[2]);
-
-            // reserve mesh elements
-
-            mesh_ptr->num_vertices = num_elems;
-            mesh_ptr->vertices.reserve(num_elems);
-
-            // grab all the vertex elements
-
-            for (j = 0; j < num_elems; j++) {
-                Vertex *vertex_ptr = new Vertex;
-
-                // grab an element from the file
-
-                ply_get_element(ply, (void *) vertex_ptr);
-                mesh_ptr->vertices.push_back(
-                        Point3D(vertex_ptr->x, vertex_ptr->y, vertex_ptr->z));
-                delete vertex_ptr;
+        for (const auto &e : file.get_elements()) {
+            std::cout << "\t[ply_header] element: " << e.name << " (" << e.size << ")" << std::endl;
+            for (const auto &p : e.properties) {
+                std::cout << "\t[ply_header] \tproperty: " << p.name << " (type="
+                          << tinyply::PropertyTable[p.propertyType].str << ")";
+                if (p.isList)
+                    std::cout << " (list_type=" << tinyply::PropertyTable[p.listType].str << ")";
+                std::cout << std::endl;
             }
         }
 
-        // if we're on face elements, read them in
+        // Because most people have their own mesh types, tinyply treats parsed data as structured/typed byte buffers.
+        // See examples below on how to marry your own application-specific data structures with this one.
+        std::shared_ptr<PlyData> vertices, normals, colors, texcoords, faces, tripstrip;
 
-        if (equal_strings("face", elem_name)) {
-            // set up for getting face elements
-
-            ply_get_property(ply, elem_name, &face_props[0]); // only one property - a list
-
-            mesh_ptr->num_triangles = num_elems;
-            objects.reserve(num_elems); // triangles will be stored in Compound::objects
-
-            // the following code stores the face numbers that are shared by each vertex
-
-            mesh_ptr->vertex_faces.reserve(mesh_ptr->num_vertices);
-            vector<int> faceList;
-
-            for (j = 0; j < mesh_ptr->num_vertices; j++)
-                mesh_ptr->vertex_faces.push_back(
-                        faceList); // store empty lists so that we can use the [] notation below
-
-            // grab all the face elements
-
-            int count = 0; // the number of faces read
-
-            for (j = 0; j < num_elems; j++) {
-                // grab an element from the file
-
-                Face *face_ptr = new Face;
-
-                ply_get_element(ply, (void *) face_ptr);
-
-                // construct a mesh triangle of the specified type
-
-                if (triangle_type == flat) {
-                    FlatMeshTriangle *triangle_ptr = new FlatMeshTriangle(
-                            mesh_ptr, face_ptr->verts[0], face_ptr->verts[1],
-                            face_ptr->verts[2]);
-                    triangle_ptr->compute_normal(reverse_normal);
-                    objects.push_back(triangle_ptr);
-                }
-
-                if (triangle_type == smooth) {
-                    SmoothMeshTriangle *triangle_ptr = new SmoothMeshTriangle(
-                            mesh_ptr, face_ptr->verts[0], face_ptr->verts[1],
-                            face_ptr->verts[2]);
-                    triangle_ptr->compute_normal(
-                            reverse_normal); // the "flat triangle" normal is used to compute the average normal at each mesh vertex
-                    objects.push_back(
-                            triangle_ptr); // it's quicker to do it once here, than have to do it on average 6 times in compute_mesh_normals
-
-                    // the following code stores a list of all faces that share a vertex
-                    // it's used for computing the average normal at each vertex in order(num_vertices) time
-
-                    mesh_ptr->vertex_faces[face_ptr->verts[0]].push_back(count);
-                    mesh_ptr->vertex_faces[face_ptr->verts[1]].push_back(count);
-                    mesh_ptr->vertex_faces[face_ptr->verts[2]].push_back(count);
-                    count++;
-                }
-            }
-
-            if (triangle_type == flat)
-                mesh_ptr->vertex_faces.erase(mesh_ptr->vertex_faces.begin(),
-                                             mesh_ptr->vertex_faces.end());
+        // The header information can be used to programmatically extract properties on elements
+        // known to exist in the header prior to reading the data. For brevity of this sample, properties
+        // like vertex position are hard-coded:
+        try { vertices = file.request_properties_from_element("vertex", {"x", "y", "z"}); } catch (
+            const std::exception &e) {
+            std::cerr << "tinyply exception: " << e.what() << std::endl;
         }
 
-        // print out the properties we got, for debugging
+        try {
+            normals = file.request_properties_from_element(
+                "vertex",
+                {"nx", "ny", "nz"}
+            );
+        } catch (const std::exception &e) {
+            std::cerr << "tinyply exception: " << e.what() << std::endl;
+        }
 
-        for (j = 0; j < nprops; j++)
-            printf("property %s\n", plist[j]->name);
+        try {
+            colors = file.request_properties_from_element(
+                "vertex",
+                {"red", "green", "blue", "alpha"}
+            );
+        } catch (const std::exception &e) {
+            std::cerr << "tinyply exception: " << e.what() << std::endl;
+        }
 
-    }  // end of for (i = 0; i < nelems; i++)
+        try {
+            colors = file.request_properties_from_element(
+                "vertex",
+                {"r", "g", "b", "a"}
+            );
+        } catch (const std::exception &e) {
+            std::cerr << "tinyply exception: " << e.what() << std::endl;
+        }
 
-    // grab and print out the comments in the file
+        try {
+            texcoords = file.request_properties_from_element(
+                "vertex",
+                {"u", "v"}
+            );
+        } catch (const std::exception &e) {
+            std::cerr << "tinyply exception: " << e.what() << std::endl;
+        }
 
-    comments = ply_get_comments(ply, &num_comments);
+        // Providing a list size hint (the last argument) is a 2x performance improvement. If you have
+        // arbitrary ply files, it is best to leave this 0.
+        try { faces = file.request_properties_from_element("face", {"vertex_indices"}, 3); } catch (
+            const std::exception &e) {
+            std::cerr << "tinyply exception: " << e.what() << std::endl;
+        }
 
-    for (i = 0; i < num_comments; i++)
-        printf("comment = '%s'\n", comments[i]);
+        // Tristrips must always be read with a 0 list size hint (unless you know exactly how many elements
+        // are specifically in the file, which is unlikely);
+        try {
+            tripstrip = file.request_properties_from_element(
+                "tristrips",
+                {"vertex_indices"},
+                0
+            );
+        } catch (const std::exception &e) {
+            std::cerr << "tinyply exception: " << e.what() << std::endl;
+        }
 
-    // grab and print out the object information
+        file.read(*file_stream);
 
-    obj_info = ply_get_obj_info(ply, &num_obj_info);
+        if (vertices) std::cout << "\tRead " << vertices->count << " total vertices " << std::endl;
+        if (normals)
+            std::cout << "\tRead " << normals->count << " total vertex normals " << std::endl;
+        if (colors) std::cout << "\tRead " << colors->count << " total vertex colors " << std::endl;
+        if (texcoords)
+            std::cout << "\tRead " << texcoords->count << " total vertex texcoords " << std::endl;
+        if (faces)
+            std::cout << "\tRead " << faces->count << " total faces (triangles) " << std::endl;
+        if (tripstrip)
+            std::cout << "\tRead " << (tripstrip->buffer.size_bytes() /
+                                       tinyply::PropertyTable[tripstrip->t].stride)
+                      << " total indicies (tristrip) " << std::endl;
 
-    for (i = 0; i < num_obj_info; i++)
-        printf("obj_info = '%s'\n", obj_info[i]);
+        mesh_ptr->num_vertices = vertices->count;
+        mesh_ptr->vertices.reserve(vertices->count);
+        std::memcpy(
+            mesh_ptr->vertices.data(),
+            vertices->buffer.get(),
+            vertices->buffer.size_bytes());
 
-    // close the ply file
 
-    ply_close(ply);
+        mesh_ptr->num_triangles = faces->count;
+        objects.reserve(faces->count); // triangles will be stored in Compound::objects
+        mesh_ptr->vertex_faces.resize(mesh_ptr->num_vertices);
+
+        int count = 0; // the number of faces read
+
+        struct triangle_face_data {
+            int i, j, k;
+        };
+
+
+        std::vector<triangle_face_data> tris(vertices->count);
+        std::memcpy(tris.data(), faces->buffer.get(), faces->buffer.size_bytes());
+
+        for (auto&[i, j, k] : tris) {
+            // grab an element from the file
+            // construct a mesh triangle of the specified type
+
+            if (triangle_type == flat) {
+                FlatMeshTriangle *triangle_ptr = new FlatMeshTriangle(mesh_ptr, i, j, j);
+                triangle_ptr->compute_normal(reverse_normal);
+                objects.push_back(triangle_ptr);
+            }
+
+            if (triangle_type == smooth) {
+                SmoothMeshTriangle *triangle_ptr = new SmoothMeshTriangle(mesh_ptr, i, j, k);
+                triangle_ptr->compute_normal(reverse_normal);
+                // the "flat triangle" normal is used to compute the average normal at each mesh vertex
+                objects.push_back(triangle_ptr);
+                // it's quicker to do it once here, than have to do it on average 6 times in compute_mesh_normals
+
+                // the following code stores a list of all faces that share a vertex
+                // it's used for computing the average normal at each vertex in order(num_vertices) time
+
+                mesh_ptr->vertex_faces[i].push_back(count);
+                mesh_ptr->vertex_faces[j].push_back(count);
+                mesh_ptr->vertex_faces[k].push_back(count);
+                count++;
+            }
+        }
+
+        if (triangle_type == flat) {
+            mesh_ptr->vertex_faces.erase(
+                mesh_ptr->vertex_faces.begin(),
+                mesh_ptr->vertex_faces.end());
+        }
+
+    } catch (const std::exception &e) {
+        std::cerr << "Caught tinyply exception: " << e.what() << std::endl;
+    }
 }
 
 // ----------------------------------------------------------------------------- compute_mesh_normals
@@ -528,11 +520,10 @@ void Grid::compute_mesh_normals(void) {
     for (int index = 0; index < mesh_ptr->num_vertices; index++)
         for (int j = 0; j < mesh_ptr->vertex_faces[index].size(); j++)
             mesh_ptr->vertex_faces[index].erase(
-                    mesh_ptr->vertex_faces[index].begin(),
-                    mesh_ptr->vertex_faces[index].end());
+                mesh_ptr->vertex_faces[index].begin(),
+                mesh_ptr->vertex_faces[index].end());
 
-    mesh_ptr->vertex_faces.erase(mesh_ptr->vertex_faces.begin(),
-                                 mesh_ptr->vertex_faces.end());
+    mesh_ptr->vertex_faces.erase(mesh_ptr->vertex_faces.begin(), mesh_ptr->vertex_faces.end());
 
     cout << "finished constructing normals" << endl;
 }
@@ -540,8 +531,7 @@ void Grid::compute_mesh_normals(void) {
 // ------------------------------------------------------------------------------------------------  tesselate_flat_sphere
 // tesselate a unit sphere into flat triangles that are stored directly in the grid
 
-void Grid::tessellate_flat_sphere(const int horizontal_steps,
-                                  const int vertical_steps) {
+void Grid::tessellate_flat_sphere(const int horizontal_steps, const int vertical_steps) {
     double pi = 3.1415926535897932384;
 
     // define the top triangles which all touch the north pole
@@ -554,18 +544,16 @@ void Grid::tessellate_flat_sphere(const int horizontal_steps,
         Point3D v0(0, 1, 0);                                // top (north pole)
 
         Point3D v1(
-                sin(2.0 * pi * j / horizontal_steps)
-                * sin(pi * k / vertical_steps),        // bottom left
-                cos(pi * k / vertical_steps),
-                cos(2.0 * pi * j / horizontal_steps)
-                * sin(pi * k / vertical_steps));
+            sin(2.0 * pi * j / horizontal_steps) *
+            sin(pi * k / vertical_steps),        // bottom left
+            cos(pi * k / vertical_steps),
+            cos(2.0 * pi * j / horizontal_steps) * sin(pi * k / vertical_steps));
 
         Point3D v2(
-                sin(2.0 * pi * (j + 1) / horizontal_steps)
-                * sin(pi * k / vertical_steps),        // bottom  right
-                cos(pi * k / vertical_steps),
-                cos(2.0 * pi * (j + 1) / horizontal_steps)
-                * sin(pi * k / vertical_steps));
+            sin(2.0 * pi * (j + 1) / horizontal_steps) *
+            sin(pi * k / vertical_steps),        // bottom  right
+            cos(pi * k / vertical_steps),
+            cos(2.0 * pi * (j + 1) / horizontal_steps) * sin(pi * k / vertical_steps));
 
         Triangle *triangle_ptr = new Triangle(v0, v1, v2);
         objects.push_back(triangle_ptr);
@@ -579,20 +567,18 @@ void Grid::tessellate_flat_sphere(const int horizontal_steps,
         // define vertices
 
         Point3D v0(
-                sin(2.0 * pi * j / horizontal_steps)
-                * sin(pi * k / vertical_steps),            // top left
-                cos(pi * k / vertical_steps),
-                cos(2.0 * pi * j / horizontal_steps)
-                * sin(pi * k / vertical_steps));
+            sin(2.0 * pi * j / horizontal_steps) *
+            sin(pi * k / vertical_steps),            // top left
+            cos(pi * k / vertical_steps),
+            cos(2.0 * pi * j / horizontal_steps) * sin(pi * k / vertical_steps));
 
         Point3D v1(0, -1, 0);                        // bottom (south pole)
 
         Point3D v2(
-                sin(2.0 * pi * (j + 1) / horizontal_steps)
-                * sin(pi * k / vertical_steps),        // top right
-                cos(pi * k / vertical_steps),
-                cos(2.0 * pi * (j + 1) / horizontal_steps)
-                * sin(pi * k / vertical_steps));
+            sin(2.0 * pi * (j + 1) / horizontal_steps) *
+            sin(pi * k / vertical_steps),        // top right
+            cos(pi * k / vertical_steps),
+            cos(2.0 * pi * (j + 1) / horizontal_steps) * sin(pi * k / vertical_steps));
 
         Triangle *triangle_ptr = new Triangle(v0, v1, v2);
         objects.push_back(triangle_ptr);
@@ -607,25 +593,22 @@ void Grid::tessellate_flat_sphere(const int horizontal_steps,
             // vertices
 
             Point3D v0(
-                    sin(2.0 * pi * j / horizontal_steps)
-                    * sin(pi * (k + 1) / vertical_steps), // bottom left, use k + 1, j
-                    cos(pi * (k + 1) / vertical_steps),
-                    cos(2.0 * pi * j / horizontal_steps)
-                    * sin(pi * (k + 1) / vertical_steps));
+                sin(2.0 * pi * j / horizontal_steps) *
+                sin(pi * (k + 1) / vertical_steps), // bottom left, use k + 1, j
+                cos(pi * (k + 1) / vertical_steps),
+                cos(2.0 * pi * j / horizontal_steps) * sin(pi * (k + 1) / vertical_steps));
 
             Point3D v1(
-                    sin(2.0 * pi * (j + 1) / horizontal_steps)
-                    * sin(pi * (k + 1) / vertical_steps), // bottom  right, use k + 1, j + 1
-                    cos(pi * (k + 1) / vertical_steps),
-                    cos(2.0 * pi * (j + 1) / horizontal_steps)
-                    * sin(pi * (k + 1) / vertical_steps));
+                sin(2.0 * pi * (j + 1) / horizontal_steps) *
+                sin(pi * (k + 1) / vertical_steps), // bottom  right, use k + 1, j + 1
+                cos(pi * (k + 1) / vertical_steps),
+                cos(2.0 * pi * (j + 1) / horizontal_steps) * sin(pi * (k + 1) / vertical_steps));
 
             Point3D v2(
-                    sin(2.0 * pi * j / horizontal_steps)
-                    * sin(pi * k / vertical_steps), // top left, 	use k, j
-                    cos(pi * k / vertical_steps),
-                    cos(2.0 * pi * j / horizontal_steps)
-                    * sin(pi * k / vertical_steps));
+                sin(2.0 * pi * j / horizontal_steps) *
+                sin(pi * k / vertical_steps), // top left, 	use k, j
+                cos(pi * k / vertical_steps),
+                cos(2.0 * pi * j / horizontal_steps) * sin(pi * k / vertical_steps));
 
             Triangle *triangle_ptr1 = new Triangle(v0, v1, v2);
             objects.push_back(triangle_ptr1);
@@ -635,25 +618,22 @@ void Grid::tessellate_flat_sphere(const int horizontal_steps,
             // vertices
 
             v0 = Point3D(
-                    sin(2.0 * pi * (j + 1) / horizontal_steps)
-                    * sin(pi * k / vertical_steps), // top right, use k, j + 1
-                    cos(pi * k / vertical_steps),
-                    cos(2.0 * pi * (j + 1) / horizontal_steps)
-                    * sin(pi * k / vertical_steps));
+                sin(2.0 * pi * (j + 1) / horizontal_steps) *
+                sin(pi * k / vertical_steps), // top right, use k, j + 1
+                cos(pi * k / vertical_steps),
+                cos(2.0 * pi * (j + 1) / horizontal_steps) * sin(pi * k / vertical_steps));
 
             v1 = Point3D(
-                    sin(2.0 * pi * j / horizontal_steps)
-                    * sin(pi * k / vertical_steps), // top left, 	use k, j
-                    cos(pi * k / vertical_steps),
-                    cos(2.0 * pi * j / horizontal_steps)
-                    * sin(pi * k / vertical_steps));
+                sin(2.0 * pi * j / horizontal_steps) *
+                sin(pi * k / vertical_steps), // top left, 	use k, j
+                cos(pi * k / vertical_steps),
+                cos(2.0 * pi * j / horizontal_steps) * sin(pi * k / vertical_steps));
 
             v2 = Point3D(
-                    sin(2.0 * pi * (j + 1) / horizontal_steps)
-                    * sin(pi * (k + 1) / vertical_steps), // bottom  right, use k + 1, j + 1
-                    cos(pi * (k + 1) / vertical_steps),
-                    cos(2.0 * pi * (j + 1) / horizontal_steps)
-                    * sin(pi * (k + 1) / vertical_steps));
+                sin(2.0 * pi * (j + 1) / horizontal_steps) *
+                sin(pi * (k + 1) / vertical_steps), // bottom  right, use k + 1, j + 1
+                cos(pi * (k + 1) / vertical_steps),
+                cos(2.0 * pi * (j + 1) / horizontal_steps) * sin(pi * (k + 1) / vertical_steps));
 
             Triangle *triangle_ptr2 = new Triangle(v0, v1, v2);
             objects.push_back(triangle_ptr2);
@@ -664,8 +644,7 @@ void Grid::tessellate_flat_sphere(const int horizontal_steps,
 // ------------------------------------------------------------------------------------------------  tesselate_smooth_sphere
 // tesselate a unit sphere into smooth triangles that are stored directly in the grid
 
-void Grid::tessellate_smooth_sphere(const int horizontal_steps,
-                                    const int vertical_steps) {
+void Grid::tessellate_smooth_sphere(const int horizontal_steps, const int vertical_steps) {
     double pi = 3.1415926535897932384;
 
     // define the top triangles
@@ -678,18 +657,16 @@ void Grid::tessellate_smooth_sphere(const int horizontal_steps,
         Point3D v0(0, 1, 0);                                            // top
 
         Point3D v1(
-                sin(2.0 * pi * j / horizontal_steps)
-                * sin(pi * k / vertical_steps),        // bottom left
-                cos(pi * k / vertical_steps),
-                cos(2.0 * pi * j / horizontal_steps)
-                * sin(pi * k / vertical_steps));
+            sin(2.0 * pi * j / horizontal_steps) *
+            sin(pi * k / vertical_steps),        // bottom left
+            cos(pi * k / vertical_steps),
+            cos(2.0 * pi * j / horizontal_steps) * sin(pi * k / vertical_steps));
 
         Point3D v2(
-                sin(2.0 * pi * (j + 1) / horizontal_steps)
-                * sin(pi * k / vertical_steps),        // bottom  right
-                cos(pi * k / vertical_steps),
-                cos(2.0 * pi * (j + 1) / horizontal_steps)
-                * sin(pi * k / vertical_steps));
+            sin(2.0 * pi * (j + 1) / horizontal_steps) *
+            sin(pi * k / vertical_steps),        // bottom  right
+            cos(pi * k / vertical_steps),
+            cos(2.0 * pi * (j + 1) / horizontal_steps) * sin(pi * k / vertical_steps));
 
         SmoothTriangle *triangle_ptr = new SmoothTriangle(v0, v1, v2);
         triangle_ptr->n0 = v0;
@@ -706,20 +683,18 @@ void Grid::tessellate_smooth_sphere(const int horizontal_steps,
         // define vertices
 
         Point3D v0(
-                sin(2.0 * pi * j / horizontal_steps)
-                * sin(pi * k / vertical_steps),            // top left
-                cos(pi * k / vertical_steps),
-                cos(2.0 * pi * j / horizontal_steps)
-                * sin(pi * k / vertical_steps));
+            sin(2.0 * pi * j / horizontal_steps) *
+            sin(pi * k / vertical_steps),            // top left
+            cos(pi * k / vertical_steps),
+            cos(2.0 * pi * j / horizontal_steps) * sin(pi * k / vertical_steps));
 
         Point3D v1(0, -1, 0);                                // bottom
 
         Point3D v2(
-                sin(2.0 * pi * (j + 1) / horizontal_steps)
-                * sin(pi * k / vertical_steps),        // top right
-                cos(pi * k / vertical_steps),
-                cos(2.0 * pi * (j + 1) / horizontal_steps)
-                * sin(pi * k / vertical_steps));
+            sin(2.0 * pi * (j + 1) / horizontal_steps) *
+            sin(pi * k / vertical_steps),        // top right
+            cos(pi * k / vertical_steps),
+            cos(2.0 * pi * (j + 1) / horizontal_steps) * sin(pi * k / vertical_steps));
 
         SmoothTriangle *triangle_ptr = new SmoothTriangle(v0, v1, v2);
         triangle_ptr->n0 = v0;
@@ -737,25 +712,22 @@ void Grid::tessellate_smooth_sphere(const int horizontal_steps,
             // vertices
 
             Point3D v0(
-                    sin(2.0 * pi * j / horizontal_steps)
-                    * sin(pi * (k + 1) / vertical_steps), // bottom left, use k + 1, j
-                    cos(pi * (k + 1) / vertical_steps),
-                    cos(2.0 * pi * j / horizontal_steps)
-                    * sin(pi * (k + 1) / vertical_steps));
+                sin(2.0 * pi * j / horizontal_steps) *
+                sin(pi * (k + 1) / vertical_steps), // bottom left, use k + 1, j
+                cos(pi * (k + 1) / vertical_steps),
+                cos(2.0 * pi * j / horizontal_steps) * sin(pi * (k + 1) / vertical_steps));
 
             Point3D v1(
-                    sin(2.0 * pi * (j + 1) / horizontal_steps)
-                    * sin(pi * (k + 1) / vertical_steps), // bottom  right, use k + 1, j + 1
-                    cos(pi * (k + 1) / vertical_steps),
-                    cos(2.0 * pi * (j + 1) / horizontal_steps)
-                    * sin(pi * (k + 1) / vertical_steps));
+                sin(2.0 * pi * (j + 1) / horizontal_steps) *
+                sin(pi * (k + 1) / vertical_steps), // bottom  right, use k + 1, j + 1
+                cos(pi * (k + 1) / vertical_steps),
+                cos(2.0 * pi * (j + 1) / horizontal_steps) * sin(pi * (k + 1) / vertical_steps));
 
             Point3D v2(
-                    sin(2.0 * pi * j / horizontal_steps)
-                    * sin(pi * k / vertical_steps), // top left, 	use k, j
-                    cos(pi * k / vertical_steps),
-                    cos(2.0 * pi * j / horizontal_steps)
-                    * sin(pi * k / vertical_steps));
+                sin(2.0 * pi * j / horizontal_steps) *
+                sin(pi * k / vertical_steps), // top left, 	use k, j
+                cos(pi * k / vertical_steps),
+                cos(2.0 * pi * j / horizontal_steps) * sin(pi * k / vertical_steps));
 
             SmoothTriangle *triangle_ptr1 = new SmoothTriangle(v0, v1, v2);
             triangle_ptr1->n0 = v0;
@@ -768,25 +740,22 @@ void Grid::tessellate_smooth_sphere(const int horizontal_steps,
             // vertices
 
             v0 = Point3D(
-                    sin(2.0 * pi * (j + 1) / horizontal_steps)
-                    * sin(pi * k / vertical_steps), // top right, use k, j + 1
-                    cos(pi * k / vertical_steps),
-                    cos(2.0 * pi * (j + 1) / horizontal_steps)
-                    * sin(pi * k / vertical_steps));
+                sin(2.0 * pi * (j + 1) / horizontal_steps) *
+                sin(pi * k / vertical_steps), // top right, use k, j + 1
+                cos(pi * k / vertical_steps),
+                cos(2.0 * pi * (j + 1) / horizontal_steps) * sin(pi * k / vertical_steps));
 
             v1 = Point3D(
-                    sin(2.0 * pi * j / horizontal_steps)
-                    * sin(pi * k / vertical_steps), // top left, 	use k, j
-                    cos(pi * k / vertical_steps),
-                    cos(2.0 * pi * j / horizontal_steps)
-                    * sin(pi * k / vertical_steps));
+                sin(2.0 * pi * j / horizontal_steps) *
+                sin(pi * k / vertical_steps), // top left, 	use k, j
+                cos(pi * k / vertical_steps),
+                cos(2.0 * pi * j / horizontal_steps) * sin(pi * k / vertical_steps));
 
             v2 = Point3D(
-                    sin(2.0 * pi * (j + 1) / horizontal_steps)
-                    * sin(pi * (k + 1) / vertical_steps), // bottom  right, use k + 1, j + 1
-                    cos(pi * (k + 1) / vertical_steps),
-                    cos(2.0 * pi * (j + 1) / horizontal_steps)
-                    * sin(pi * (k + 1) / vertical_steps));
+                sin(2.0 * pi * (j + 1) / horizontal_steps) *
+                sin(pi * (k + 1) / vertical_steps), // bottom  right, use k + 1, j + 1
+                cos(pi * (k + 1) / vertical_steps),
+                cos(2.0 * pi * (j + 1) / horizontal_steps) * sin(pi * (k + 1) / vertical_steps));
 
             SmoothTriangle *triangle_ptr2 = new SmoothTriangle(v0, v1, v2);
             triangle_ptr2->n0 = v0;

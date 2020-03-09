@@ -1,7 +1,5 @@
 // this file contains the definition of the World class
 
-#include "wxraytracer.h"
-
 #include "World.h"
 #include "Constants.h"
 
@@ -39,6 +37,7 @@
 // build functions
 
 #include "BunndyWorld.cpp"
+#include "ui.h"
 
 
 // -------------------------------------------------------------------- default constructor
@@ -49,10 +48,7 @@
 // and set its parameters
 
 World::World(void)
-        : background_color(black),
-          tracer_ptr(NULL),
-          ambient_ptr(new Ambient),
-          camera_ptr(NULL) {}
+    : background_color(black), tracer_ptr(NULL), ambient_ptr(new Ambient), camera_ptr(NULL) {}
 
 
 
@@ -86,8 +82,7 @@ World::~World(void) {
 
 // This uses orthographic viewing along the zw axis
 
-void
-World::render_scene(void) const {
+void World::render_scene(void) const {
 
     RGBColor pixel_color;
     Ray ray;
@@ -109,8 +104,7 @@ World::render_scene(void) const {
 
 // ------------------------------------------------------------------ clamp
 
-RGBColor
-World::max_to_one(const RGBColor &c) const {
+RGBColor World::max_to_one(const RGBColor &c) const {
     float max_value = max(c.r, max(c.g, c.b));
 
     if (max_value > 1.0)
@@ -123,8 +117,7 @@ World::max_to_one(const RGBColor &c) const {
 // ------------------------------------------------------------------ clamp_to_color
 // Set color to red if any component is greater than one
 
-RGBColor
-World::clamp_to_color(const RGBColor &raw_color) const {
+RGBColor World::clamp_to_color(const RGBColor &raw_color) const {
     RGBColor c(raw_color);
 
     if (raw_color.r > 1.0 || raw_color.g > 1.0 || raw_color.b > 1.0) {
@@ -148,8 +141,7 @@ World::clamp_to_color(const RGBColor &raw_color) const {
 // the function SetCPixel is a Mac OS function
 
 
-void
-World::display_pixel(const int row, const int column, const RGBColor &raw_color) const {
+void World::display_pixel(const int row, const int column, const RGBColor &raw_color) const {
     RGBColor mapped_color;
 
     if (vp.show_out_of_gamut)
@@ -164,15 +156,18 @@ World::display_pixel(const int row, const int column, const RGBColor &raw_color)
     int x = column;
     int y = vp.vres - row - 1;
 
-    paintArea->setPixel(x, y, (int) (mapped_color.r * 255),
-                        (int) (mapped_color.g * 255),
-                        (int) (mapped_color.b * 255));
+    // todo render to bitmap
+    paintArea->setPixel(
+        x,
+        y,
+        (int) (mapped_color.r * 255),
+        (int) (mapped_color.g * 255),
+        (int) (mapped_color.b * 255));
 }
 
 // ----------------------------------------------------------------------------- hit_objects
 
-ShadeRec
-World::hit_objects(const Ray &ray) {
+ShadeRec World::hit_objects(const Ray &ray) {
 
     ShadeRec sr(*this);
     double t;
@@ -207,8 +202,7 @@ World::hit_objects(const Ray &ray) {
 // Deletes the objects in the objects array, and erases the array.
 // The objects array still exists, because it's an automatic variable, but it's empty 
 
-void
-World::delete_objects(void) {
+void World::delete_objects(void) {
     int num_objects = objects.size();
 
     for (int j = 0; j < num_objects; j++) {
@@ -222,8 +216,7 @@ World::delete_objects(void) {
 
 //------------------------------------------------------------------ delete_lights
 
-void
-World::delete_lights(void) {
+void World::delete_lights(void) {
     int num_lights = lights.size();
 
     for (int j = 0; j < num_lights; j++) {

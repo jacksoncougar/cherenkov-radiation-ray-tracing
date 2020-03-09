@@ -6,9 +6,11 @@
 #ifndef WXRAYTRACER_ATTRIBUTE_HPP
 #define WXRAYTRACER_ATTRIBUTE_HPP
 
-#include <nmemory>
+#include <memory>
 #include "BRDF.h"
-#include "ImageTexture.h"
+#include "ImageTexture.hpp"
+#include "RGBColor.h"
+#include "ShadeRec.h"
 
 class Attribute : public BRDF {
 public:
@@ -16,8 +18,12 @@ public:
         return texture->sample(sr);
     }
 
+    BRDF *clone(void) const override {
+        return nullptr;
+    }
+
 private:
-    std::shared_ptr <ImageTexture> texture;
+    std::shared_ptr<ImageTexture> texture;
 };
 
 

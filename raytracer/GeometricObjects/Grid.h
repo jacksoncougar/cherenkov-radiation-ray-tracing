@@ -22,7 +22,6 @@
 #include "Compound.h"
 #include "ShadeRec.h"
 #include "Mesh.h"
-#include "ply.h"
 
 
 //---------------------------------------------------------------------- class Grid
