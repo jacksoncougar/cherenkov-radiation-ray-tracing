@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <cstring>
 #include "Constants.h"
 
 #include "Vector3D.h"
@@ -170,9 +171,9 @@ void Grid::setup_cells(void) {
 
     objects.erase(objects.begin(), objects.end());
 
-// display some statistics on counts
-// this is useful for finding out how many cells have no objects, one object, etc
-// comment this out if you don't want to use it
+    // display some statistics on counts
+    // this is useful for finding out how many cells have no objects, one object, etc
+    // comment this out if you don't want to use it
 
     int num_zeroes = 0;
     int num_ones = 0;
@@ -363,8 +364,7 @@ void Grid::read_ply_file(char *file_name, const int triangle_type) {
 
         try {
             normals = file.request_properties_from_element(
-                "vertex",
-                {"nx", "ny", "nz"}
+                "vertex", {"nx", "ny", "nz"}
             );
         } catch (const std::exception &e) {
             std::cerr << "tinyply exception: " << e.what() << std::endl;
@@ -372,8 +372,7 @@ void Grid::read_ply_file(char *file_name, const int triangle_type) {
 
         try {
             colors = file.request_properties_from_element(
-                "vertex",
-                {"red", "green", "blue", "alpha"}
+                "vertex", {"red", "green", "blue", "alpha"}
             );
         } catch (const std::exception &e) {
             std::cerr << "tinyply exception: " << e.what() << std::endl;
@@ -381,8 +380,7 @@ void Grid::read_ply_file(char *file_name, const int triangle_type) {
 
         try {
             colors = file.request_properties_from_element(
-                "vertex",
-                {"r", "g", "b", "a"}
+                "vertex", {"r", "g", "b", "a"}
             );
         } catch (const std::exception &e) {
             std::cerr << "tinyply exception: " << e.what() << std::endl;
@@ -390,8 +388,7 @@ void Grid::read_ply_file(char *file_name, const int triangle_type) {
 
         try {
             texcoords = file.request_properties_from_element(
-                "vertex",
-                {"u", "v"}
+                "vertex", {"u", "v"}
             );
         } catch (const std::exception &e) {
             std::cerr << "tinyply exception: " << e.what() << std::endl;
@@ -408,9 +405,7 @@ void Grid::read_ply_file(char *file_name, const int triangle_type) {
         // are specifically in the file, which is unlikely);
         try {
             tripstrip = file.request_properties_from_element(
-                "tristrips",
-                {"vertex_indices"},
-                0
+                "tristrips", {"vertex_indices"}, 0
             );
         } catch (const std::exception &e) {
             std::cerr << "tinyply exception: " << e.what() << std::endl;
@@ -431,12 +426,15 @@ void Grid::read_ply_file(char *file_name, const int triangle_type) {
                                        tinyply::PropertyTable[tripstrip->t].stride)
                       << " total indicies (tristrip) " << std::endl;
 
-        mesh_ptr->num_vertices = vertices->count;
-        mesh_ptr->vertices.reserve(vertices->count);
+        struct vertex_data {
+            float x, y, z;
+        };
+        std::vector<vertex_data> verts(vertices->count);
+
         std::memcpy(
-            mesh_ptr->vertices.data(),
-            vertices->buffer.get(),
-            vertices->buffer.size_bytes());
+            verts.data(), vertices->buffer.get(), vertices->buffer.size_bytes());
+        mesh_ptr->num_vertices = verts.size();
+        for (auto&[x, y, z] : verts) mesh_ptr->vertices.emplace_back(x, y, z);
 
 
         mesh_ptr->num_triangles = faces->count;
@@ -450,7 +448,8 @@ void Grid::read_ply_file(char *file_name, const int triangle_type) {
         };
 
 
-        std::vector<triangle_face_data> tris(vertices->count);
+        std::vector<triangle_face_data> tris;
+        tris.resize(faces->count);
         std::memcpy(tris.data(), faces->buffer.get(), faces->buffer.size_bytes());
 
         for (auto&[i, j, k] : tris) {
@@ -482,8 +481,7 @@ void Grid::read_ply_file(char *file_name, const int triangle_type) {
 
         if (triangle_type == flat) {
             mesh_ptr->vertex_faces.erase(
-                mesh_ptr->vertex_faces.begin(),
-                mesh_ptr->vertex_faces.end());
+                mesh_ptr->vertex_faces.begin(), mesh_ptr->vertex_faces.end());
         }
 
     } catch (const std::exception &e) {
@@ -520,8 +518,7 @@ void Grid::compute_mesh_normals(void) {
     for (int index = 0; index < mesh_ptr->num_vertices; index++)
         for (int j = 0; j < mesh_ptr->vertex_faces[index].size(); j++)
             mesh_ptr->vertex_faces[index].erase(
-                mesh_ptr->vertex_faces[index].begin(),
-                mesh_ptr->vertex_faces[index].end());
+                mesh_ptr->vertex_faces[index].begin(), mesh_ptr->vertex_faces[index].end());
 
     mesh_ptr->vertex_faces.erase(mesh_ptr->vertex_faces.begin(), mesh_ptr->vertex_faces.end());
 

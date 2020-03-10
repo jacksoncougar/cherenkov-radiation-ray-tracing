@@ -65,28 +65,23 @@ class Grid: public Compound {
 		void
 		setup_cells(void);
 
-		void
-		reverse_mesh_normals(void);
+		void reverse_mesh_normals(void);
 
-		void
-		store_material(Material* material, const int index); 							
+    void store_material(Material *material, const int index);
 
-	private: 
+private:
 
-		std::vector<GeometricObject*>	cells;			// grid of cells
-		int							nx, ny, nz;    	// number of cells in the x, y, and z directions
-		BBox						bbox;			// bounding box
-		Mesh*						mesh_ptr;		// holds triangle data
-		bool						reverse_normal;	// some PLY files have normals that point inwards
+    std::vector<GeometricObject *> cells;            // grid of cells
+    int nx, ny, nz;        // number of cells in the x, y, and z directions
+    BBox bbox;            // bounding box
+    Mesh *mesh_ptr = nullptr;        // holds triangle data
+    bool reverse_normal;    // some PLY files have normals that point inwards
 
-		Point3D
-		find_min_bounds(void);
+    Point3D find_min_bounds(void);
 
-		Point3D
-		find_max_bounds(void);
+    Point3D find_max_bounds(void);
 
-		void
-		read_ply_file(char* file_name, const int triangle_type);
+    void read_ply_file(char *file_name, const int triangle_type);
 
 		void
 		compute_mesh_normals(void);	

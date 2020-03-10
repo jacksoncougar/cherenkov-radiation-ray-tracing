@@ -20,9 +20,8 @@ class RenderThread : public std::thread {
 public:
     explicit RenderThread(std::shared_ptr<World> world) : world(move(world)) {}
 
-    vector<unsigned char> pixel_data();
-
     virtual void setPixel(int x, int y, int red, int green, int blue);
+    vector<unsigned char> pixel_data(bool flip_y = true);
 };
 
 #endif //WXRAYTRACER_UI_H

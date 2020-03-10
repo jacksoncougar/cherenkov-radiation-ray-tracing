@@ -25,9 +25,9 @@ void World::build(void) {
 
     // view plane
 
-    vp.set_hres(400);
-    vp.set_vres(400);
-    vp.set_pixel_size(0.05f);
+    vp.set_hres(512);
+    vp.set_vres(512);
+    vp.set_pixel_size(1.0);
     vp.set_samples(num_samples);
 
     // the ambient light here is the same as the default set in the World
@@ -44,8 +44,8 @@ void World::build(void) {
     // camera
 
     Pinhole *pinhole_ptr = new Pinhole;
-    pinhole_ptr->set_eye(0, 0, 500);
-	pinhole_ptr->set_lookat(0.0);
+    pinhole_ptr->set_eye(0, 10, 500);
+    pinhole_ptr->set_lookat(0.0);
 	pinhole_ptr->set_view_distance(600.0);
 	pinhole_ptr->compute_uvw();
 	set_camera(pinhole_ptr);
@@ -101,38 +101,40 @@ void World::build(void) {
 
     // bunny
 
-    auto attributeBasedMaterial = std::make_shared<svAttributeBasedMapping>();
 
-    Grid *bunny = new Grid(new Mesh);
-    bunny->read_smooth_triangles("assets/ply/Venus.ply");
-    bunny->setup_cells();
-
-    Instance *instance = new Instance(bunny);
-    instance->scale(70, 70, 70);
-    instance->translate(0, -5, 0);
-    instance->rotate_y(35.0f);
-    instance->rotate_x(15.0f);
-    instance->set_material(attributeBasedMaterial.get());
-    instance->compute_bounding_box();
-
-    add_object(instance);
-
-    // spheres
-
-    auto sphere_ptr1 = new Sphere(Point3D(5, 3, 0), 60);
-    sphere_ptr1->set_material(material);
-    add_object(sphere_ptr1);
-
-    // vertical plane
 
     auto *matte_ptr36 = new Matte;
     matte_ptr36->set_ka(ka);
     matte_ptr36->set_kd(kd);
-    matte_ptr36->set_cd(RGBColor(1));
+    matte_ptr36->set_cd(RGBColor(0.7, 0.4, 0.8));
 
-    auto *plane_ptr = new Plane(Point3D(0, 0, -150), Normal(0, 0, 1));
-    plane_ptr->set_material(matte_ptr36);
-    add_object(plane_ptr);
+    auto attributeBasedMaterial = new svAttributeBasedMapping();
+
+    Grid *bunny = new Grid(new Mesh);
+    bunny->read_smooth_triangles("assets/ply/Venus-Low.ply");
+    bunny->setup_cells();
+
+    Instance *instance = new Instance(bunny);
+    instance->translate(0, -100, 0);
+    instance->scale(3, 3, 3);
+    instance->rotate_y(35.0f);
+//    instance->rotate_x(15.0f);
+    instance->set_material(matte_ptr36);
+    instance->compute_bounding_box();
+
+    add_object(instance);
+
+//    // spheres
+//
+//    auto sphere_ptr1 = new Sphere(Point3D(0, 0, 0), 60);
+//    sphere_ptr1->set_material(material);
+//    add_object(sphere_ptr1);
+//
+//    // vertical plane
+//
+//    auto *plane_ptr = new Plane(Point3D(0, 0, -150), Normal(0, 0, 1));
+//    plane_ptr->set_material(matte_ptr36);
+//    add_object(plane_ptr);
 
 }
 
