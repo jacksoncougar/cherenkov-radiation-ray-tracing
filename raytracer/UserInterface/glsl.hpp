@@ -19,9 +19,6 @@
 #include <SVAttributeBasedMapping.hpp>
 #include <fstream>
 
-#include "glm/glm.hpp"
-#include "glm/gtx/transform.hpp"
-
 #include "json.hpp"
 
 #include "ui.h"

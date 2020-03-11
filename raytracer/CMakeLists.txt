@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 project(tracer LANGUAGES C CXX)
 
 find_package(glfw3 REQUIRED)
-find_package(glm REQUIRED)
 find_package(OpenGL REQUIRED)
 
 set(SRC World/ViewPlane.cpp
@@ -61,7 +60,6 @@ target_link_libraries(tracer
         PRIVATE tinyply
         PRIVATE glad
         PRIVATE glfw
-        PRIVATE glm
         PRIVATE OpenGL::GL)
 
 target_include_directories(tracer
