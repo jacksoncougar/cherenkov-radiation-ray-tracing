@@ -46,6 +46,7 @@ public:
     RenderThread *paintArea;    //connection to skeleton - wxRaytracer.h
 
 
+    void delete_objects(void);
 public:
 
     World(void);
@@ -74,8 +75,6 @@ public:
 
 
 private:
-
-    void delete_objects(void);
 
     void delete_lights(void);
 };

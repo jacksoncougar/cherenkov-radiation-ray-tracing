@@ -48,28 +48,25 @@ void World::build(void) {
     pinhole_ptr->set_lookat(0.0);
 	pinhole_ptr->set_view_distance(600.0);
 	pinhole_ptr->compute_uvw();
-	set_camera(pinhole_ptr);
+    set_camera(pinhole_ptr);
 
-	// light
+    // light
 
-	Directional *light_ptr1 = new Directional;
-	light_ptr1->set_direction(-20, 20, 30);
-	light_ptr1->scale_radiance(0.80);
-	add_light(light_ptr1);
+    Directional *light_ptr1 = new Directional;
+    light_ptr1->set_direction(-20, 20, 30);
+    light_ptr1->scale_radiance(0.80);
+    add_light(light_ptr1);
 
-	Directional *light_ptr2 = new Directional;
-	light_ptr1->set_direction(0, 20, 0);
-	light_ptr1->scale_radiance(0.80);
-	add_light(light_ptr2);
+    Directional *light_ptr2 = new Directional;
+    light_ptr1->set_direction(0, 20, 20);
+    light_ptr1->scale_radiance(0.80);
+    add_light(light_ptr2);
 
-	Image test("assets/ppm/fig-10b.ppm");
-	ImageTexture texture;
+    // colors
 
-	// colors
-
-	RGBColor yellow(1, 1, 0);                                        // yellow
-	RGBColor brown(0.71, 0.40, 0.16);                                // brown
-	RGBColor darkGreen(0.0, 0.41, 0.41);                            // darkGreen
+    RGBColor yellow(1, 1, 0);                                        // yellow
+    RGBColor brown(0.71, 0.40, 0.16);                                // brown
+    RGBColor darkGreen(0.0, 0.41, 0.41);                            // darkGreen
     RGBColor orange(1, 0.75, 0);                                    // orange
     RGBColor green(0, 0.6, 0.3);                                    // green
     RGBColor lightGreen(0.65, 1, 0.30);                           // light green
@@ -101,28 +98,10 @@ void World::build(void) {
 
     // bunny
 
-
-
     auto *matte_ptr36 = new Matte;
     matte_ptr36->set_ka(ka);
     matte_ptr36->set_kd(kd);
     matte_ptr36->set_cd(RGBColor(0.7, 0.4, 0.8));
-
-    auto attributeBasedMaterial = new svAttributeBasedMapping();
-
-    Grid *bunny = new Grid(new Mesh);
-    bunny->read_smooth_triangles("assets/ply/Venus-Low.ply");
-    bunny->setup_cells();
-
-    Instance *instance = new Instance(bunny);
-    instance->translate(0, -100, 0);
-    instance->scale(3, 3, 3);
-    instance->rotate_y(35.0f);
-//    instance->rotate_x(15.0f);
-    instance->set_material(matte_ptr36);
-    instance->compute_bounding_box();
-
-    add_object(instance);
 
 //    // spheres
 //

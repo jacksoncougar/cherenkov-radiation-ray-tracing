@@ -7,6 +7,9 @@ target_include_directories(glad PUBLIC 3rd-party/glad/include)
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE 3rd-party/stb)
 
+add_library(json INTERFACE)
+target_include_directories(json INTERFACE 3rd-party/nlohmann/include)
+
 add_library(tinyply STATIC 3rd-party/tinyply/tinyply.cpp)
 target_include_directories(tinyply PUBLIC 3rd-party/tinyply)
 

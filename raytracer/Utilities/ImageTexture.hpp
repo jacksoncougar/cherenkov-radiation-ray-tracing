@@ -10,6 +10,8 @@ class ImageTexture {
     std::shared_ptr<void *> mapping;
 
 public:
+    explicit ImageTexture(std::shared_ptr<Image> data) : data(std::move(data)) {}
+
     RGBColor sample(const ShadeRec &sr) {
         int x = static_cast<int>(sr.u * (data->width - 1.0));
         int y = static_cast<int>(sr.v * (data->height - 1.0));

@@ -6,16 +6,27 @@
 #ifndef WXRAYTRACER_SVATTRIBUTEBASEDMAPPING_HPP
 #define WXRAYTRACER_SVATTRIBUTEBASEDMAPPING_HPP
 
-#include "Attribute.hpp"
+#include <utility>
+#include <algorithm>
+
+#include "AttributeBasedBrdf.hpp"
 #include "Material.h"
 
-class svAttributeBasedMapping : public Material {
-    Attribute brdf;
-    ImageTexture texture;
+struct svAttributeBasedMapping : public Material {
+    AttributeBasedBrdf<Highlights> brdf;
 public:
-    svAttributeBasedMapping *clone() const override { return new svAttributeBasedMapping(*this); }
+    explicit svAttributeBasedMapping(std::shared_ptr<ImageTexture> texture) : brdf(
+            std::move(texture)) {}
 
-    ~svAttributeBasedMapping() override { /*...*/ }
+    [[nodiscard]] svAttributeBasedMapping *clone() const override {
+        return new svAttributeBasedMapping(*this);
+    }
+
+    ~svAttributeBasedMapping() override = default;
+
+    float r() { return brdf.r; }
+
+    void r(float value) { brdf.r = std::max(value, 0.0f); }
 
     RGBColor shade(ShadeRec &sr) override {
         Vector3D wo = -sr.ray.d;
@@ -24,10 +35,8 @@ public:
 
         for (int j = 0; j < num_lights; j++) {
             Vector3D wi = sr.w.lights[j]->get_direction(sr);
-            float ndotwi = sr.normal * wi;
-
-            if (ndotwi > 0.0)
-                L += brdf.f(sr, wo, wi) * sr.w.lights[j]->L(sr) * ndotwi;
+            if (sr.normal * wi > 0.0)
+                L += brdf.f(sr, wo, wi);
         }
 
         return (L);

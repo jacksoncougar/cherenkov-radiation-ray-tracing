@@ -32,9 +32,8 @@ public:
     template<typename T>
     T sample(int x, int y) {
 
-        auto bits_per_texel = channels * sizeof(char);
-        auto scanline = width * bits_per_texel;
-        auto offset = x + y * scanline;
+        auto stride = channels * sizeof(char);
+        auto offset = y * width * stride + x * stride;
 
         assert(channels == 3);
 

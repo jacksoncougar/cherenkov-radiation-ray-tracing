@@ -7,8 +7,8 @@ find_package(OpenGL REQUIRED)
 
 set(SRC World/ViewPlane.cpp
         World/World.cpp
-        BRDFs/Attribute.cpp
-        BRDFs/Attribute.hpp
+        BRDFs/AttributeBasedBrdf.cpp
+        BRDFs/AttributeBasedBrdf.hpp
         BRDFs/Microfacet.cpp
         BRDFs/BRDF.cpp
         BRDFs/Lambertian.cpp
@@ -57,6 +57,7 @@ set_property(TARGET tracer PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(tracer
         PRIVATE stb
+        PRIVATE json
         PRIVATE tinyply
         PRIVATE glad
         PRIVATE glfw
