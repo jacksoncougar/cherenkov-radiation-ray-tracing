@@ -18,6 +18,7 @@
 #include <ImageTexture.hpp>
 #include <SVAttributeBasedMapping.hpp>
 #include <fstream>
+#include <filesystem>
 
 #include "json.hpp"
 
@@ -35,6 +36,7 @@ struct program {
     std::shared_ptr<World> world;
     std::shared_ptr<Instance> object;
     std::shared_ptr<Image> image;
+    std::shared_ptr<Mesh> mesh;
     std::shared_ptr<svAttributeBasedMapping> material;
 
     bool redraw = false;
@@ -64,29 +66,11 @@ struct program {
 
         glfwGetFramebufferSize(window, &width, &height);
 
-        // setup render_scene
-
         world = std::make_shared<World>();
-        world->build();
-        world->vp.hres = width;
-        world->vp.vres = height;
-
-        image = std::make_shared<Image>("assets/ppm/fig-10b.ppm");
-        material = std::make_shared<svAttributeBasedMapping>(std::make_shared<ImageTexture>(image));
-
-        Grid *bunny = new Grid(new Mesh);
-        bunny->read_smooth_triangles("assets/ply/Venus-Low.ply");
-        bunny->setup_cells();
-
-        object = std::make_shared<Instance>(bunny);
+        object = std::make_shared<Instance>();
         object->translate(0, -100, 0);
         object->scale(2, 2, 2);
-        object->set_material(material.get());
-        object->compute_bounding_box();
-
-        world->add_object(object.get());
-
-        renderThread = std::make_shared<RenderThread>(world);
+        load_scene("assets/ppm/fig-10b.ppm", "assets/ply/Venus-Low.ply");
 
         // setup render target & texture
 
@@ -109,14 +93,43 @@ struct program {
         }
     }
 
+    void load_scene(std::string image_filename, std::string mesh_filename) {
+
+        world->build();
+        world->vp.hres = width;
+        world->vp.vres = height;
+
+        std::cout << "CWD: " << std::filesystem::current_path();
+
+        image = std::make_shared<Image>(image_filename);
+        material = std::make_shared<svAttributeBasedMapping>(std::make_shared<ImageTexture>(image));
+
+        Grid *bunny = new Grid(new Mesh);
+        
+        bunny->read_smooth_triangles(const_cast<char*>(mesh_filename.c_str()));
+        bunny->setup_cells();
+
+
+        object->set_object(bunny);
+        object->set_material(material.get());
+        object->compute_bounding_box();
+
+        world->add_object(object.get());
+
+        if(renderThread)
+            renderThread->join();
+        renderThread = std::make_shared<RenderThread>(world);
+    }
+
+
     static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
         auto program = reinterpret_cast<struct program *>(glfwGetWindowUserPointer(window));
         if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
-            program->object->rotate_y(5.0f);
+            program->object->rotate_y(15.0f);
             program->redraw = true;
         }
         if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
-            program->object->rotate_y(-5.0f);
+            program->object->rotate_y(-15.0f);
             program->redraw = true;
         }
         if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
@@ -134,11 +147,16 @@ struct program {
             ifs.close();
             float value = settings["r"];
             std::string image_filename = settings["image"];
-            program->material->r(value);
-            program->image = std::make_shared<Image>(image_filename);
-            program->material = std::make_shared<svAttributeBasedMapping>(
-                    std::make_shared<ImageTexture>(program->image));
-            program->object->set_material(program->material.get());
+            std::cout << "Updating image: " << image_filename << "\n";
+
+            program->load_scene(image_filename, "assets/ply/Venus-Low.ply");
+
+            // program->image = std::make_shared<Image>(image_filename);
+            // program->material = std::make_shared<svAttributeBasedMapping>(
+            //         std::make_shared<ImageTexture>(program->image));
+            // std::cout << "r: " << value << "\n";
+            // program->material->r(value);
+            // program->object->set_material(program->material.get());
             program->redraw = true;
         }
     }
@@ -149,7 +167,8 @@ struct program {
             glfwGetFramebufferSize(window, &width, &height);
             world->vp.hres = width;
             world->vp.vres = height;
-            renderThread->join();
+            if(renderThread->joinable())
+                renderThread->join();
             renderThread = std::make_shared<RenderThread>(world);
 
             redraw = false;

@@ -13,7 +13,7 @@
 #include "Material.h"
 
 struct svAttributeBasedMapping : public Material {
-    AttributeBasedBrdf<Highlights> brdf;
+    AttributeBasedBrdf<NearSilhouette> brdf;
 public:
     explicit svAttributeBasedMapping(std::shared_ptr<ImageTexture> texture) : brdf(
             std::move(texture)) {}
