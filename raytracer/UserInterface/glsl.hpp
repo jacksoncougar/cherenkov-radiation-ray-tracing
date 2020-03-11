@@ -131,12 +131,14 @@ struct program {
             std::ifstream ifs("assets/settings.json");
             nlohmann::json settings;
             ifs >> settings;
+            ifs.close();
             float value = settings["r"];
-	    std::string image_filename = settings["image"];
+            std::string image_filename = settings["image"];
             program->material->r(value);
-	    program->image = std::make_shared<Image>(image_filename);
-	    program->material = std::make_shared<svAttributeBasedMapping>(std::make_shared<ImageTexture>(program->image));
-	    program->object->set_material(program->material.get());
+            program->image = std::make_shared<Image>(image_filename);
+            program->material = std::make_shared<svAttributeBasedMapping>(
+                    std::make_shared<ImageTexture>(program->image));
+            program->object->set_material(program->material.get());
             program->redraw = true;
         }
     }
@@ -149,7 +151,7 @@ struct program {
             world->vp.vres = height;
             renderThread->join();
             renderThread = std::make_shared<RenderThread>(world);
-	    
+
             redraw = false;
         }
     }
