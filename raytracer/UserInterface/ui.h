@@ -16,7 +16,8 @@ struct RenderPixel {
 
 class RenderThread : public std::thread {
 public:
-
+    int width;
+    int height;
 private:
     std::shared_ptr<World> world;
     std::vector<RenderPixel> pixels;
@@ -24,6 +25,8 @@ private:
 public:
     explicit RenderThread(std::shared_ptr<World> world) : std::thread(&RenderThread::work, this),
                                                           world(std::move(world)) {
+        width = this->world->vp.hres;
+        height = this->world->vp.vres;
     }
 
     void work() {

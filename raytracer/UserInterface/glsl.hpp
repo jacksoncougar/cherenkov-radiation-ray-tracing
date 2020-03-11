@@ -17,9 +17,12 @@
 #include <Image.h>
 #include <ImageTexture.hpp>
 #include <SVAttributeBasedMapping.hpp>
+#include <fstream>
 
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
+
+#include "json.hpp"
 
 #include "ui.h"
 
@@ -127,6 +130,14 @@ struct program {
             program->object->scale(0.9f);
             program->redraw = true;
         }
+        if (key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
+            std::ifstream ifs("assets/settings.json");
+            nlohmann::json settings;
+            ifs >> settings;
+            float value = settings["r"];
+            program->material->r(value);
+            program->redraw = true;
+        }
     }
 
     void update(float time = 0) {
@@ -137,18 +148,17 @@ struct program {
             world->vp.vres = height;
             renderThread->join();
             renderThread = std::make_shared<RenderThread>(world);
-            //renderThread->join();
             redraw = false;
         }
     }
 
     void render() {
         // copy our render pixels to the framebuffer (e.g. screen).
-
+        if (!renderThread) return;
         auto pixels = renderThread->pixel_data(false);
         glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                     pixels.data());
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, renderThread->width, renderThread->height, 0,
+                     GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
         glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
         glReadBuffer(GL_COLOR_ATTACHMENT0);
         glBlitFramebuffer(0, 0, width, height, 0, height, width, 0, GL_COLOR_BUFFER_BIT, GL_LINEAR);
