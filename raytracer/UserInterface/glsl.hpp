@@ -87,7 +87,6 @@ struct program {
         world->add_object(object.get());
 
         renderThread = std::make_shared<RenderThread>(world);
-        renderThread->join();
 
         // setup render target & texture
 
@@ -136,9 +135,9 @@ struct program {
             glfwGetFramebufferSize(window, &width, &height);
             world->vp.hres = width;
             world->vp.vres = height;
-
-            renderThread = std::make_shared<RenderThread>(world);
             renderThread->join();
+            renderThread = std::make_shared<RenderThread>(world);
+            //renderThread->join();
             redraw = false;
         }
     }

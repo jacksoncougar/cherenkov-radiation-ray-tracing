@@ -7,6 +7,7 @@
 #include "World.h"
 #include <thread>
 #include <memory>
+#include <mutex>
 
 struct RenderPixel {
     int x, y;
@@ -14,15 +15,19 @@ struct RenderPixel {
 };
 
 class RenderThread : public std::thread {
+public:
 
+private:
     std::shared_ptr<World> world;
     std::vector<RenderPixel> pixels;
+    std::mutex pixel_mutex;
 public:
     explicit RenderThread(std::shared_ptr<World> world) : std::thread(&RenderThread::work, this),
                                                           world(std::move(world)) {
     }
 
     void work() {
+        this->pixels.clear();
         this->world->paintArea = this;
         this->world->camera_ptr->render_scene(*this->world);
     }
