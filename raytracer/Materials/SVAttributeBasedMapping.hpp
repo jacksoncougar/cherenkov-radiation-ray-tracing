@@ -34,7 +34,7 @@ public:
 
         for (int j = 0; j < num_lights; j++) {
             Vector3D wi = sr.w.lights[j]->get_direction(sr);
-            if (sr.normal * wi > 0.0)
+            //if (sr.normal * wi > 0.0)
                 L += brdf.f(sr, wo, wi);
         }
 
@@ -66,7 +66,7 @@ struct svDepthMaterial : public svAttributeBasedMapping<DepthBrdf> {
     float r() { return brdf.r; }
 
     void r(float value) {
-        float r_value = std::max(value, 0.0f);
+        float r_value = std::max(value, 1.00001f);
         std::cout << "Using r = " << r_value << std::endl;
         brdf.r = r_value;
     }

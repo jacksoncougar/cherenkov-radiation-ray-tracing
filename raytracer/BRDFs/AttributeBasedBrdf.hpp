@@ -29,8 +29,7 @@ public:
         this->texture = texture;
     }
 
-    [[nodiscard]] RGBColor f(const ShadeRec &sr, const Vector3D &wo,
-                             const Vector3D &wi) const override {
+    [[nodiscard]] RGBColor f(const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi) const override {
         if (!texture) return {0};
 
         auto n_dot_l = sr.normal * wi;
@@ -62,8 +61,7 @@ public:
         this->texture = texture;
     }
 
-    [[nodiscard]] RGBColor f(const ShadeRec &sr, const Vector3D &wo,
-                             const Vector3D &wi) const override {
+    [[nodiscard]] RGBColor f(const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi) const override {
         if (!texture) return {0};
 
         auto n_dot_l = sr.normal * wi;
@@ -89,7 +87,8 @@ public:
 
     [[nodiscard]] float D(const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi) const {
         auto z = sr.t;
-        auto result = 1.0 - std::log(z - z_min) / std::log(r);
+        auto z_max = r * z_min;
+        auto result = 1.0 - std::logf(z / z_min) / std::logf(r);
         return std::clamp(result, 0.0, 1.0);
     }
 
@@ -97,8 +96,7 @@ public:
         this->texture = texture;
     }
 
-    [[nodiscard]] RGBColor f(const ShadeRec &sr, const Vector3D &wo,
-                             const Vector3D &wi) const override {
+    [[nodiscard]] RGBColor f(const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi) const override {
         if (!texture) return {0};
 
         auto n_dot_l = sr.normal * wi;

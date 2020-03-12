@@ -65,28 +65,22 @@ struct program {
     void onKeyPress(int key) {
         switch (key) {
 
-
             case GLFW_KEY_F1:
                 load_silhouette_material();
-                load_scene(); // creates world...
 
                 renderThread->join(); // ignore currrent solution...
                 renderThread = std::make_shared<RenderThread>(world);
                 break;
-
 
             case GLFW_KEY_F2:
                 load_highlights_material();
-                load_scene(); // creates world...
 
                 renderThread->join(); // ignore currrent solution...
                 renderThread = std::make_shared<RenderThread>(world);
                 break;
 
-
             case GLFW_KEY_F3:
                 load_depth_material();
-                load_scene(); // creates world...
 
                 renderThread->join(); // ignore currrent solution...
                 renderThread = std::make_shared<RenderThread>(world);
@@ -95,18 +89,23 @@ struct program {
             case GLFW_KEY_X:
                 subject->rotate_x(90.0f);
                 break;
+
             case GLFW_KEY_Y:
                 subject->rotate_y(90.0f);
                 break;
+
             case GLFW_KEY_Z:
                 subject->rotate_z(90.0f);
                 break;
+
             case GLFW_KEY_UP:
                 subject->scale(1.1f);
                 break;
+
             case GLFW_KEY_DOWN:
                 subject->scale(0.9f);
                 break;
+
             default:
                 onKeyPressEvent(key);
         }
@@ -162,38 +161,52 @@ struct program {
     void load_depth_material() {
         auto material = std::make_shared<svDepthMaterial>();
         material->set_attribute_image(image);
+        auto bbox = subject->get_bounding_box();
+
+        // make sane defaults
+        auto z_min = std::min(world->camera_ptr->eye.z - bbox.z1, world->camera_ptr->eye.z - bbox.z0);
+        auto z_max = std::max(world->camera_ptr->eye.z - bbox.z1, world->camera_ptr->eye.z - bbox.z0);
+        auto dz = z_max - z_min;
+        material->z_min(z_max);
+        double r = z_max / z_min;
+        material->r(1.02);
+
         active_material = material;
         subject->set_material(active_material.get());
 
         onKeyPressEvent.handlers.clear();
-        onKeyPressEvent += [material](int key) {
+        onKeyPressEvent += [material, d = dz / 10.0](int key) {
             if (key == GLFW_KEY_EQUAL) {
-                material->r(material->r() + 5.0f);
+                material->r(material->r() + 1.0);
             }
             if (key == GLFW_KEY_MINUS) {
-                material->r(material->r() - 5.0f);
+                material->r(material->r() - 1.0);
             }
             if (key == GLFW_KEY_PAGE_UP) {
-                material->z_min(material->z_min() + 5.0);
+                material->z_min(material->z_min() + d);
             }
             if (key == GLFW_KEY_PAGE_DOWN) {
-                material->z_min(material->z_min() - 5.0);
+                material->z_min(material->z_min() - d);
             }
         };
-    }
-
-    void load_scene() {
     }
 
     void focus_subject() const {
         subject->compute_bounding_box();
         auto bbox = subject->get_bounding_box();
+
+        // find half-extends
         double dx = (bbox.x1 - bbox.x0) / 2.0;
         double dy = (bbox.y1 - bbox.y0) / 2.0;
         double dz = (bbox.z1 - bbox.z0) / 2.0;
 
-        world->camera_ptr->set_eye(bbox.x0 + dx, bbox.y0 + dy, bbox.z0 + 5 * dz);
-        world->camera_ptr->set_lookat(bbox.x0 + dx, bbox.y0 + dy, bbox.z0 + dz);
+        auto z_min = std::min(bbox.z0, bbox.z1);
+
+        // move the center of the subject to origin
+        subject->translate(bbox.x0 + dx, bbox.y0 - dy, bbox.z0 - dz);
+
+        world->camera_ptr->set_eye(10, 10, 200);
+        world->camera_ptr->set_lookat(0, 0, 0);
         world->camera_ptr->compute_uvw();
     }
 
@@ -241,8 +254,8 @@ struct program {
 
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                     nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr
+        );
 
         glGenFramebuffers(1, &framebuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -279,8 +292,8 @@ struct program {
         if (!renderThread) return;
         auto pixels = renderThread->pixel_data(false);
         glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, renderThread->width, renderThread->height, 0,
-                     GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, renderThread->width, renderThread->height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                     pixels.data());
         glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
         glReadBuffer(GL_COLOR_ATTACHMENT0);
         glBlitFramebuffer(0, 0, width, height, 0, height, width, 0, GL_COLOR_BUFFER_BIT, GL_LINEAR);
