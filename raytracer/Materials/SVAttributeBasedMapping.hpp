@@ -8,25 +8,24 @@
 
 #include <utility>
 #include <algorithm>
+#include <iostream>
 
 #include "AttributeBasedBrdf.hpp"
 #include "Material.h"
 
+template<typename B>
 struct svAttributeBasedMapping : public Material {
-    AttributeBasedBrdf<Highlights> brdf;
+    B brdf;
 public:
-    explicit svAttributeBasedMapping(std::shared_ptr<ImageTexture> texture) : brdf(
-            std::move(texture)) {}
+    void set_attribute_image(std::shared_ptr<ImageTexture> texture) {
+        brdf.set_texture(texture);
+    }
 
     [[nodiscard]] svAttributeBasedMapping *clone() const override {
         return new svAttributeBasedMapping(*this);
     }
 
     ~svAttributeBasedMapping() override = default;
-
-    float r() { return brdf.r; }
-
-    void r(float value) { brdf.r = std::max(value, 0.0f); }
 
     RGBColor shade(ShadeRec &sr) override {
         Vector3D wo = -sr.ray.d;
@@ -43,5 +42,44 @@ public:
     }
 };
 
+
+struct svHighlightsMaterial : public svAttributeBasedMapping<MetalHighlightsBrdf> {
+    float s() { return brdf.s; }
+
+    void s(float value) {
+        float s_value = std::max(value, 1.000001f);
+        std::cout << "Using s = " << s_value << std::endl;
+        brdf.s = s_value;
+    }
+};
+
+
+struct svDepthMaterial : public svAttributeBasedMapping<DepthBrdf> {
+    float z_min() { return brdf.z_min; }
+
+    void z_min(float value) {
+        float z_min_value = value;
+        std::cout << "Using z_min = " << z_min_value << std::endl;
+        brdf.z_min = z_min_value;
+    }
+
+    float r() { return brdf.r; }
+
+    void r(float value) {
+        float r_value = std::max(value, 0.0f);
+        std::cout << "Using r = " << r_value << std::endl;
+        brdf.r = r_value;
+    }
+};
+
+struct svSilhouetteMaterial : public svAttributeBasedMapping<NearSilhouetteBrdf> {
+    float r() { return brdf.r; }
+
+    void r(float value) {
+        float r_value = std::max(value, 0.0f);
+        std::cout << "Using r = " << r_value << std::endl;
+        brdf.r = r_value;
+    }
+};
 
 #endif //WXRAYTRACER_SVATTRIBUTEBASEDMAPPING_HPP

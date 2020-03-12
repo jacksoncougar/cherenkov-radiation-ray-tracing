@@ -53,11 +53,11 @@ GeometricObject::operator= (const GeometricObject& rhs) {
 
 // ---------------------------------------------------------------------- destructor
 
-GeometricObject::~GeometricObject (void) {	
-	if (material_ptr) {
-		delete material_ptr;
-		material_ptr = NULL;
-	}
+GeometricObject::~GeometricObject (void) {
+//	if (material_ptr) {
+//		delete material_ptr;
+//		material_ptr = NULL;
+//	}
 }
 
 

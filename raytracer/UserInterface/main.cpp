@@ -14,6 +14,7 @@
 #include "glsl.hpp"
 
 int main(int argc, char *argv[]) {
-    program program;
+    assert(argc == 3);
+    program program(argv[1], argv[2]);
     exit(0);
 }

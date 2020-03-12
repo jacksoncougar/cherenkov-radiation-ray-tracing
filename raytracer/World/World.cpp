@@ -73,7 +73,7 @@ World::~World(void) {
         camera_ptr = NULL;
     }
 
-    delete_objects();
+//    delete_objects();
     delete_lights();
 }
 
