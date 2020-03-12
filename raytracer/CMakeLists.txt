@@ -75,7 +75,7 @@ target_include_directories(tracer
         PUBLIC UserInterface
         PUBLIC World)
 
-add_custom_command(TARGET tracer PRE_BUILD
+add_custom_command(TARGET tracer POST_BUILD
         COMMENT "Copying resources..."
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/../assets $<TARGET_FILE_DIR:tracer>/assets)

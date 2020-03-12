@@ -22,17 +22,19 @@ private:
     std::shared_ptr<World> world;
     std::vector<RenderPixel> pixels;
     std::mutex pixel_mutex;
+    std::mutex world_mutex;
 public:
     explicit RenderThread(std::shared_ptr<World> world) : std::thread(&RenderThread::work, this),
                                                           world(std::move(world)) {
         width = this->world->vp.hres;
         height = this->world->vp.vres;
+        this->world->paintArea = this;
+        this->pixels.clear();
+        this->world->camera_ptr->render_scene(*this->world);
     }
 
     void work() {
-        this->pixels.clear();
-        this->world->paintArea = this;
-        this->world->camera_ptr->render_scene(*this->world);
+        //auto lock = std::lock_guard(world_mutex);
     }
 
     virtual void setPixel(int x, int y, int red, int green, int blue);
