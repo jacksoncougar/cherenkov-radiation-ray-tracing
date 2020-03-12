@@ -6,12 +6,12 @@
 #include "ui.h"
 
 void RenderThread::setPixel(int x, int y, int red, int green, int blue) {
-    auto lock = std::lock_guard(pixel_mutex);
+    //auto lock = std::lock_guard(pixel_mutex);
     pixels.push_back(RenderPixel({x, y, red, green, blue}));
 }
 
 std::vector<unsigned char> RenderThread::pixel_data(bool flip_y) {
-    auto lock = std::lock_guard(pixel_mutex);
+    //auto lock = std::lock_guard(pixel_mutex);
 
     int stride = 3;
     int width = world->vp.hres;

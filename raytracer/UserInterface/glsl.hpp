@@ -57,6 +57,8 @@ struct program {
     std::shared_ptr<Material> active_material;
     std::shared_ptr<Grid> mesh;
 
+    Vector3D camera_position = {0, 0, 0};
+
     bool redraw = false;
 
     int width = 640;
@@ -164,23 +166,25 @@ struct program {
         auto bbox = subject->get_bounding_box();
 
         // make sane defaults
-        auto z_min = std::min(world->camera_ptr->eye.z - bbox.z1, world->camera_ptr->eye.z - bbox.z0);
-        auto z_max = std::max(world->camera_ptr->eye.z - bbox.z1, world->camera_ptr->eye.z - bbox.z0);
-        auto dz = z_max - z_min;
-        material->z_min(z_max);
-        double r = z_max / z_min;
-        material->r(1.02);
+        auto z_min = std::min(world->camera_ptr->eye.z - bbox.z1,
+                              world->camera_ptr->eye.z - bbox.z0);
+        auto z_max = std::max(world->camera_ptr->eye.z - bbox.z1,
+                              world->camera_ptr->eye.z - bbox.z0);
+        material->z_min(z_min);
+        material->r(z_max / z_min);
 
         active_material = material;
         subject->set_material(active_material.get());
 
+        // setup handlers to allow sane step values... (params should be normalized to 0..1 somehow...)
         onKeyPressEvent.handlers.clear();
-        onKeyPressEvent += [material, d = dz / 10.0](int key) {
+        onKeyPressEvent += [material, d = (z_max - z_min) / 10.0, r = z_max / z_min / 10.0](
+                int key) {
             if (key == GLFW_KEY_EQUAL) {
-                material->r(material->r() + 1.0);
+                material->r(material->r() + r);
             }
             if (key == GLFW_KEY_MINUS) {
-                material->r(material->r() - 1.0);
+                material->r(material->r() - r);
             }
             if (key == GLFW_KEY_PAGE_UP) {
                 material->z_min(material->z_min() + d);
@@ -191,21 +195,26 @@ struct program {
         };
     }
 
-    void focus_subject() const {
+    void focus_subject() {
         subject->compute_bounding_box();
         auto bbox = subject->get_bounding_box();
 
         // find half-extends
-        double dx = (bbox.x1 - bbox.x0) / 2.0;
-        double dy = (bbox.y1 - bbox.y0) / 2.0;
-        double dz = (bbox.z1 - bbox.z0) / 2.0;
+        double dx = std::abs(bbox.x1 - bbox.x0) / 2.0;
+        double dy = std::abs(bbox.y1 - bbox.y0) / 2.0;
+        double dz = std::abs(bbox.z1 - bbox.z0) / 2.0;
 
         auto z_min = std::min(bbox.z0, bbox.z1);
 
         // move the center of the subject to origin
-        subject->translate(bbox.x0 + dx, bbox.y0 - dy, bbox.z0 - dz);
+        double ox = -bbox.x0 - dx;
+        double oy = -bbox.y0 - dy;
+        double oz = -bbox.z0 - dz;
+        subject->translate(ox, oy, oz);
 
-        world->camera_ptr->set_eye(10, 10, 200);
+        camera_position = Vector3D{0, 0, 4 * dx};
+
+        world->camera_ptr->set_eye(0, 0, 4 * dz);
         world->camera_ptr->set_lookat(0, 0, 0);
         world->camera_ptr->compute_uvw();
     }
@@ -254,8 +263,8 @@ struct program {
 
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr
-        );
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                     nullptr);
 
         glGenFramebuffers(1, &framebuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -292,8 +301,8 @@ struct program {
         if (!renderThread) return;
         auto pixels = renderThread->pixel_data(false);
         glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, renderThread->width, renderThread->height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                     pixels.data());
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, renderThread->width, renderThread->height, 0,
+                     GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
         glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
         glReadBuffer(GL_COLOR_ATTACHMENT0);
         glBlitFramebuffer(0, 0, width, height, 0, height, width, 0, GL_COLOR_BUFFER_BIT, GL_LINEAR);

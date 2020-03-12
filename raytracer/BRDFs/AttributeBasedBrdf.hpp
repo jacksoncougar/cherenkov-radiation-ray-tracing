@@ -29,7 +29,9 @@ public:
         this->texture = texture;
     }
 
-    [[nodiscard]] RGBColor f(const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi) const override {
+    [[nodiscard]] RGBColor f(
+        const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi
+    ) const override {
         if (!texture) return {0};
 
         auto n_dot_l = sr.normal * wi;
@@ -61,7 +63,9 @@ public:
         this->texture = texture;
     }
 
-    [[nodiscard]] RGBColor f(const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi) const override {
+    [[nodiscard]] RGBColor f(
+        const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi
+    ) const override {
         if (!texture) return {0};
 
         auto n_dot_l = sr.normal * wi;
@@ -89,14 +93,16 @@ public:
         auto z = sr.t;
         auto z_max = r * z_min;
         auto result = 1.0 - std::logf(z / z_min) / std::logf(r);
-        return std::clamp(result, 0.0, 1.0);
+        return std::clamp(result, 0.0, 1.0); // sanitize return values in uv range.
     }
 
     void set_texture(std::shared_ptr<ImageTexture> texture) {
         this->texture = texture;
     }
 
-    [[nodiscard]] RGBColor f(const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi) const override {
+    [[nodiscard]] RGBColor f(
+        const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi
+    ) const override {
         if (!texture) return {0};
 
         auto n_dot_l = sr.normal * wi;
