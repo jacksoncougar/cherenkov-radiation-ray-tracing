@@ -33,11 +33,10 @@ public:
         const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi
     ) const override {
         if (!texture) return {0};
-
         auto n_dot_l = sr.normal * wi;
         auto d = D(sr, wo, wi);
         auto sr_copy = sr;
-        sr_copy.u = n_dot_l;
+        sr_copy.u = 0.5f + n_dot_l * 0.5f; // -1..1 => 0..1
         sr_copy.v = d;
         return texture->sample(sr_copy);
     }
@@ -55,8 +54,8 @@ public:
     float s = 1.5;
 
     [[nodiscard]] float D(const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi) const {
-        auto wr = 2 * (sr.normal * wi) * sr.normal - wi;
-        return std::pow(wr * wo, s);
+        auto wr = wi - 2 * (sr.normal * wi) * sr.normal;
+        return std::pow(std::abs(wr * wo), s);
     }
 
     void set_texture(std::shared_ptr<ImageTexture> texture) {
@@ -67,11 +66,10 @@ public:
         const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi
     ) const override {
         if (!texture) return {0};
-
         auto n_dot_l = sr.normal * wi;
         auto d = D(sr, wo, wi);
         auto sr_copy = sr;
-        sr_copy.u = n_dot_l;
+        sr_copy.u = 0.5f + n_dot_l * 0.5f; // -1..1 => 0..1
         sr_copy.v = d;
         return texture->sample(sr_copy);
     }
@@ -104,11 +102,10 @@ public:
         const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi
     ) const override {
         if (!texture) return {0};
-
         auto n_dot_l = sr.normal * wi;
         auto d = D(sr, wo, wi);
         auto sr_copy = sr;
-        sr_copy.u = n_dot_l;
+        sr_copy.u = 0.5f + n_dot_l * 0.5f; // -1..1 => 0..1
         sr_copy.v = d;
         return texture->sample(sr_copy);
     }

@@ -6,6 +6,7 @@
 // This file contains the definition of the Grid class
 
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <algorithm>
 #include <cmath>
@@ -319,7 +320,7 @@ void Grid::read_ply_file(char *file_name, const int triangle_type) {
 
     try {
 
-        file_stream.reset(new std::ifstream(filepath, std::ios::binary));
+        file_stream = std::make_unique<std::ifstream>(filepath, std::ios::binary);
         if (!file_stream || file_stream->fail())
             throw std::runtime_error(
                 "file_stream failed to open " + filepath
@@ -457,7 +458,7 @@ void Grid::read_ply_file(char *file_name, const int triangle_type) {
             // construct a mesh triangle of the specified type
 
             if (triangle_type == flat) {
-                FlatMeshTriangle *triangle_ptr = new FlatMeshTriangle(mesh_ptr, i, j, j);
+                FlatMeshTriangle *triangle_ptr = new FlatMeshTriangle(mesh_ptr, i, j, k);
                 triangle_ptr->compute_normal(reverse_normal);
                 objects.push_back(triangle_ptr);
             }

@@ -23,9 +23,21 @@
 
 #include "ui.h"
 
-void log(std::string msg) {
-    std::cout << "\t[log]\t" << msg;
-}
+struct Log {
+    template<typename... Args>
+    static void info(Args... args) {
+        std::cout << "\t[log]\t";
+        (std::cout << ... << args);
+        std::cout << std::endl;
+    }
+
+    template<typename... Args>
+    static void error(Args... args) {
+        std::cerr << "\t[log]\t";
+        (std::cerr << ... << args);
+        std::cerr << std::endl;
+    }
+} debug_log;
 
 template<typename...Args>
 struct EventDelegate {
@@ -57,12 +69,13 @@ struct program {
     std::shared_ptr<Material> active_material;
     std::shared_ptr<Grid> mesh;
 
-    Vector3D camera_position = {0, 0, 0};
+    Point3D camera_position = {0, 0, 0};
 
     bool redraw = false;
 
     int width = 640;
     int height = 480;
+    float scale_factor = 1.0f;
 
     void onKeyPress(int key) {
         switch (key) {
@@ -79,6 +92,16 @@ struct program {
 
                 renderThread->join(); // ignore currrent solution...
                 renderThread = std::make_shared<RenderThread>(world);
+                break;
+
+            case GLFW_KEY_W:
+                camera_position.y += scale_factor;
+                look_at_subject();
+                break;
+
+            case GLFW_KEY_S:
+                camera_position.y -= scale_factor;
+                look_at_subject();
                 break;
 
             case GLFW_KEY_F3:
@@ -115,16 +138,19 @@ struct program {
     }
 
     void load_attribute_image(std::string filename) {
+        debug_log.info("Loading attribute image: '", filename, "'");
         image = std::make_shared<ImageTexture>(std::make_shared<Image>(filename));
     }
 
     void load_mesh_data(std::string filename) {
+        debug_log.info("Loading mesh: '", filename, "'");
         mesh = std::make_shared<Grid>(new Mesh());
         mesh->read_smooth_triangles(const_cast<char *>(filename.c_str()));
         mesh->setup_cells();
     }
 
     void load_silhouette_material() {
+        debug_log.info("Loading silhouette material");
         auto material = std::make_shared<svSilhouetteMaterial>();
         material->set_attribute_image(image);
         active_material = material;
@@ -132,17 +158,17 @@ struct program {
 
         onKeyPressEvent.handlers.clear();
         onKeyPressEvent += [material](int key) {
-            std::cout << "onKeyPressEvent";
             if (key == GLFW_KEY_EQUAL) {
-                material->r(material->r() + 1.0f);
+                material->r(material->r() * 1.20);
             }
             if (key == GLFW_KEY_MINUS) {
-                material->r(material->r() - 1.0f);
+                material->r(material->r() * 0.80f);
             }
         };
     }
 
     void load_highlights_material() {
+        debug_log.info("Loading highlights material");
         auto material = std::make_shared<svHighlightsMaterial>();
         material->set_attribute_image(image);
         active_material = material;
@@ -150,7 +176,6 @@ struct program {
 
         onKeyPressEvent.handlers.clear();
         onKeyPressEvent += [material](int key) {
-            std::cout << "onKeyPressEvent";
             if (key == GLFW_KEY_EQUAL) {
                 material->s(material->s() + 1.0f);
             }
@@ -161,15 +186,18 @@ struct program {
     }
 
     void load_depth_material() {
+        debug_log.info("Loading depth material");
         auto material = std::make_shared<svDepthMaterial>();
         material->set_attribute_image(image);
         auto bbox = subject->get_bounding_box();
 
         // make sane defaults
-        auto z_min = std::min(world->camera_ptr->eye.z - bbox.z1,
-                              world->camera_ptr->eye.z - bbox.z0);
-        auto z_max = std::max(world->camera_ptr->eye.z - bbox.z1,
-                              world->camera_ptr->eye.z - bbox.z0);
+        auto z_min = std::min(
+            world->camera_ptr->eye.z - bbox.z1, world->camera_ptr->eye.z - bbox.z0
+        );
+        auto z_max = std::max(
+            world->camera_ptr->eye.z - bbox.z1, world->camera_ptr->eye.z - bbox.z0
+        );
         material->z_min(z_min);
         material->r(z_max / z_min);
 
@@ -178,8 +206,8 @@ struct program {
 
         // setup handlers to allow sane step values... (params should be normalized to 0..1 somehow...)
         onKeyPressEvent.handlers.clear();
-        onKeyPressEvent += [material, d = (z_max - z_min) / 10.0, r = z_max / z_min / 10.0](
-                int key) {
+        onKeyPressEvent += [material, d = (z_max - z_min) / 10.0, r =
+        z_max / z_min / 10.0](int key) {
             if (key == GLFW_KEY_EQUAL) {
                 material->r(material->r() + r);
             }
@@ -196,6 +224,7 @@ struct program {
     }
 
     void focus_subject() {
+        debug_log.info("Focusing subject");
         subject->compute_bounding_box();
         auto bbox = subject->get_bounding_box();
 
@@ -203,6 +232,8 @@ struct program {
         double dx = std::abs(bbox.x1 - bbox.x0) / 2.0;
         double dy = std::abs(bbox.y1 - bbox.y0) / 2.0;
         double dz = std::abs(bbox.z1 - bbox.z0) / 2.0;
+
+        scale_factor = std::max({dx, dy, dz}) / 10.0f;
 
         auto z_min = std::min(bbox.z0, bbox.z1);
 
@@ -212,9 +243,12 @@ struct program {
         double oz = -bbox.z0 - dz;
         subject->translate(ox, oy, oz);
 
-        camera_position = Vector3D{0, 0, 4 * dx};
+        camera_position = Point3D{0, 0, 4 * dx};
+        look_at_subject();
+    }
 
-        world->camera_ptr->set_eye(0, 0, 4 * dz);
+    void look_at_subject() const {
+        world->camera_ptr->set_eye(camera_position);
         world->camera_ptr->set_lookat(0, 0, 0);
         world->camera_ptr->compute_uvw();
     }
@@ -222,7 +256,8 @@ struct program {
     program(const char *attribute_image_filename, const char *mesh_filename) {
 
         if (!glfwInit()) {
-            std::cerr << "GLFW Initialization failed";
+
+            debug_log.error("GLFW Initialization failed");
             exit(1);
         }
 
@@ -230,7 +265,7 @@ struct program {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
         window = glfwCreateWindow(width, height, "", NULL, NULL);
         if (!window) {
-            std::cerr << "Window or OpenGL context creation failed";
+            debug_log.error("Window or OpenGL context creation failed");
             exit(1);
         }
         glfwMakeContextCurrent(window);
@@ -263,8 +298,9 @@ struct program {
 
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                     nullptr);
+        glTexImage2D(
+            GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr
+        );
 
         glGenFramebuffers(1, &framebuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -301,8 +337,16 @@ struct program {
         if (!renderThread) return;
         auto pixels = renderThread->pixel_data(false);
         glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, renderThread->width, renderThread->height, 0,
-                     GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGB8,
+            renderThread->width,
+            renderThread->height,
+            0,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            pixels.data());
         glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
         glReadBuffer(GL_COLOR_ATTACHMENT0);
         glBlitFramebuffer(0, 0, width, height, 0, height, width, 0, GL_COLOR_BUFFER_BIT, GL_LINEAR);

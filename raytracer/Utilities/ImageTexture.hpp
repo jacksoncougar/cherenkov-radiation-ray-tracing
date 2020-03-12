@@ -14,7 +14,8 @@ public:
 
     RGBColor sample(const ShadeRec &sr) {
         int x = static_cast<int>(sr.u * (data->width - 1.0));
-        int y = static_cast<int>(sr.v * (data->height - 1.0));
+        // invert u because data is laid out from top to bottom in image...
+        int y = static_cast<int>((1.0 - sr.v) * (data->height - 1.0));
 
         return data->sample<RGBColor>(x, y);
     }
