@@ -15,4 +15,3 @@ add_library(tinyply STATIC 3rd-party/tinyply/tinyply.cpp)
 target_include_directories(tinyply PUBLIC 3rd-party/tinyply)
 
 add_subdirectory(raytracer)
-add_subdirectory(assets)

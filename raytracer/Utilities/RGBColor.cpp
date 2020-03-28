@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "RGBColor.h"
+#include <cmath>
 
 // -------------------------------------------------------- default constructor
 
@@ -60,3 +61,6 @@ RGBColor::powc(float p) const {
 	return (RGBColor(pow(r, p), pow(g, p), pow(b, p)));
 }
 
+RGBColor std::pow(const RGBColor &a, const Vector3D &b) {
+    return {powf(a.r, (float) b.x), powf(a.g, (float) b.y), powf(a.b, (float) b.z)};
+}

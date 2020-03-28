@@ -18,8 +18,7 @@
 #include <ImageTexture.hpp>
 #include <SVAttributeBasedMapping.hpp>
 #include <fstream>
-
-#include "json.hpp"
+#include <Matte.h>
 
 #include "ui.h"
 
@@ -55,6 +54,10 @@ struct EventDelegate {
 
 };
 
+std::ostream &operator<<(std::ostream &out, const Point3D &point) {
+    return out << point.x << " " << point.y << " " << point.z;
+}
+
 struct program {
 
     EventDelegate<int> onKeyPressEvent{};
@@ -69,7 +72,7 @@ struct program {
     std::shared_ptr<Material> active_material;
     std::shared_ptr<Grid> mesh;
 
-    Point3D camera_position = {0, 0, 0};
+    Point3D camera_position = {0, -10, 26};
 
     bool redraw = false;
 
@@ -83,14 +86,14 @@ struct program {
             case GLFW_KEY_F1:
                 load_silhouette_material();
 
-                renderThread->join(); // ignore currrent solution...
+                renderThread->detach(); // ignore current solution...
                 renderThread = std::make_shared<RenderThread>(world);
                 break;
 
             case GLFW_KEY_F2:
                 load_highlights_material();
 
-                renderThread->join(); // ignore currrent solution...
+                renderThread->detach(); // ignore current solution...
                 renderThread = std::make_shared<RenderThread>(world);
                 break;
 
@@ -107,7 +110,7 @@ struct program {
             case GLFW_KEY_F3:
                 load_depth_material();
 
-                renderThread->join(); // ignore currrent solution...
+                renderThread->detach(); // ignore current solution...
                 renderThread = std::make_shared<RenderThread>(world);
                 break;
 
@@ -151,18 +154,17 @@ struct program {
 
     void load_silhouette_material() {
         debug_log.info("Loading silhouette material");
-        auto material = std::make_shared<svSilhouetteMaterial>();
-        material->set_attribute_image(image);
+        auto material = std::make_shared<Matte>();
         active_material = material;
         subject->set_material(active_material.get());
 
         onKeyPressEvent.handlers.clear();
         onKeyPressEvent += [material](int key) {
             if (key == GLFW_KEY_EQUAL) {
-                material->r(material->r() * 1.20);
+                // material->r(material->r() * 1.20);
             }
             if (key == GLFW_KEY_MINUS) {
-                material->r(material->r() * 0.80f);
+                //material->r(material->r() * 0.80f);
             }
         };
     }
@@ -241,13 +243,14 @@ struct program {
         double ox = -bbox.x0 - dx;
         double oy = -bbox.y0 - dy;
         double oz = -bbox.z0 - dz;
-        subject->translate(ox, oy, oz);
+        //subject->translate(ox, 0.0f, oz);
 
-        camera_position = Point3D{0, 0, 4 * dx};
+        camera_position = Point3D{0, -10, 4 * dx};
         look_at_subject();
     }
 
     void look_at_subject() const {
+        debug_log.info(camera_position);
         world->camera_ptr->set_eye(camera_position);
         world->camera_ptr->set_lookat(0, 0, 0);
         world->camera_ptr->compute_uvw();
@@ -292,6 +295,7 @@ struct program {
         world->add_object(subject.get());
 
         focus_subject();
+        subject->scale(2.1f);
         renderThread = std::make_shared<RenderThread>(world);
 
         // setup render target & texture
@@ -326,7 +330,7 @@ struct program {
             glfwGetFramebufferSize(window, &width, &height);
             world->vp.hres = width;
             world->vp.vres = height;
-            renderThread->join(); // ignore currrent solution...
+            renderThread->detach(); // ignore current solution...
             renderThread = std::make_shared<RenderThread>(world);
             redraw = false;
         }

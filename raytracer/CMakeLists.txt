@@ -49,7 +49,7 @@ set(SRC World/ViewPlane.cpp
         Utilities/ShadeRec.cpp
         Utilities/Vector3D.cpp
         UserInterface/main.cpp
-        UserInterface/ui.cpp)
+        UserInterface/ui.cpp Tracers/MarchingRayTracer.cpp Tracers/MarchingRayTracer.hpp)
 
 add_executable(tracer ${SRC})
 set_property(TARGET tracer PROPERTY CXX_STANDARD 17)

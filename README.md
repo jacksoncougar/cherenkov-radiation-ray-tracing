@@ -38,3 +38,10 @@ Run the program with two arguments from the command line:
     +       increment primary material parameter
     PgDn    decrement secondary material parameter (depth only)
     PgUp    increment secondary material parameter (depth only)
+    
+## Code reuse
+
+I am using:
+- GLAD (https://glad.dav1d.de/)
+- stb (https://github.com/nothings/stb)
+- tinyply (https://github.com/ddiakopoulos/tinyply)

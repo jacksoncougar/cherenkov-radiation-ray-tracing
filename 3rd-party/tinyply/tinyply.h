@@ -110,7 +110,10 @@ struct PlyProperty {
     PlyProperty(Type type, std::string &_name) : name(_name), propertyType(type) {}
 
     PlyProperty(Type list_type, Type prop_type, std::string &_name, size_t list_count)
-        : name(_name), propertyType(prop_type), isList(true), listType(list_type),
+        : name(_name),
+          propertyType(prop_type),
+          isList(true),
+          listType(list_type),
           listCount(list_count) {}
 
     std::string name;

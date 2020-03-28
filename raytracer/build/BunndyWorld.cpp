@@ -17,6 +17,7 @@
 #include <GlossySpecular.h>
 #include <Instance.h>
 #include <SVAttributeBasedMapping.hpp>
+#include <MarchingRayTracer.hpp>
 #include "Image.h"
 #include "ImageTexture.hpp"
 
@@ -37,17 +38,17 @@ void World::build(void) {
     ambient_ptr->scale_radiance(1.0f);
     set_ambient_light(ambient_ptr);
 
-    background_color = RGBColor(1, 1, 0); // default color - this can be left out
+    background_color = RGBColor(0, 0, 0); // default color - this can be left out
 
-    tracer_ptr = new RayCast(this);
+    tracer_ptr = new MarchingRayTracer(this);
 
     // camera
 
     Pinhole *pinhole_ptr = new Pinhole;
     pinhole_ptr->set_eye(0, 10, 500);
     pinhole_ptr->set_lookat(0.0);
-	pinhole_ptr->set_view_distance(600.0);
-	pinhole_ptr->compute_uvw();
+    pinhole_ptr->set_view_distance(600.0);
+    pinhole_ptr->compute_uvw();
     set_camera(pinhole_ptr);
 
     // light

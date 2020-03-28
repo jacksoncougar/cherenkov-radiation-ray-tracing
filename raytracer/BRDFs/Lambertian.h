@@ -28,16 +28,16 @@ public:
 
 	void set_kd(const float kd);
 
-	void set_cd(const RGBColor& c);
+    void set_cd(const RGBColor &c);
 
-	void set_cd(const float r, const float g, const float b);
+    void set_cd(const float r, const float g, const float b);
 
-	void set_cd(const float c);
+    void set_cd(const float c);
 
 private:
 
-	float kd;
-	RGBColor cd;
+    float kd;
+    RGBColor cd = {0, 0, 0};
 };
 
 // -------------------------------------------------------------- set_ka
