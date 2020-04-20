@@ -295,7 +295,7 @@ struct program {
         world->add_object(subject.get());
 
         focus_subject();
-        subject->scale(2.1f);
+        subject->scale(0.5f);
         renderThread = std::make_shared<RenderThread>(world);
 
         // setup render target & texture
