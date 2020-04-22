@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 project(tracer LANGUAGES C CXX)
 
+message(STATUS ${MSVC_TOOLSET_VERSION})
+
 find_package(glfw3 REQUIRED)
-find_package(OpenGL REQUIRED)
+find_package(OpenGL REQUIRED)    
+find_package(assimp REQUIRED)
 
 set(SRC World/ViewPlane.cpp
         World/World.cpp
@@ -55,9 +58,9 @@ add_executable(tracer ${SRC})
 set_property(TARGET tracer PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(tracer
-        PRIVATE stb
+        PRIVATE assimp::assimp
+        PRIVATE stb 
         PRIVATE json
-        PRIVATE tinyply
         PRIVATE glad
         PRIVATE glfw
         PRIVATE OpenGL::GL)

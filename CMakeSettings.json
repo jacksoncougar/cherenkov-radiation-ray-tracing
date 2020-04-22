@@ -9,16 +9,8 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [
-        "msvc_x64_x64"
-      ],
-      "variables": [
-        {
-          "name": "wxWidgets_ROOT_DIR",
-          "value": "C:/Users/root/vcpkg/installed/x64-windows",
-          "type": "PATH"
-        }
-      ]
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": []
     },
     {
       "name": "x64-Release",
@@ -29,9 +21,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [
-        "msvc_x64_x64"
-      ],
+      "inheritEnvironments": [ "msvc_x64_x64" ],
       "variables": []
     }
   ]

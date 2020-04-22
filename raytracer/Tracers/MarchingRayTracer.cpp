@@ -90,9 +90,9 @@ RGBColor MarchingRayTracer::trace_ray(const Ray ray, const int depth) const {
 		//todo: should probably be recursive within the medium.
 
 		auto emitter_direction = (x - emitter_location).hat();
-		
+
 		// cheat: treat the light source as a specular lobe
-		auto result = std::pow(std::max<float>(0.0f, emitter_direction dot w), 128); 
+		auto result = std::pow(std::max<float>(0.0f, emitter_direction dot w), 128);
 		return result * glow_colour;
 	};
 
@@ -164,7 +164,7 @@ RGBColor MarchingRayTracer::trace_ray(const Ray ray, const int depth) const {
 
 
 	auto Sample = [&](Point3D x, Point3D y, float t, Vector3D w) {
-		return /*T_r(t) / p(t) **/ (mu_a(t) * Le(y, w) + mu_s(t) * Ls(y,w,16));
+		return /*T_r(t) / p(t) **/ (mu_a(t) * Le(y, w) + mu_s(t) * Ls(y, w, 16));
 	};
 
 
@@ -187,9 +187,11 @@ RGBColor MarchingRayTracer::trace_ray(const Ray ray, const int depth) const {
 		return std::pow(colour / (colour + RGBColor{ 1 }), Vector3D{ 1.0f / 2.2f });
 	};
 
-	if (sr.hit_an_object) {
+	if (sr.hit_an_object) { 
 
-		return { 0,0,0 };
+		float maximum = 1 / zeroth() * 2;
+
+		return { sr.t / maximum,sr.t / maximum,sr.t / maximum };
 
 	}
 	else {
