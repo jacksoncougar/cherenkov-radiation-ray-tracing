@@ -245,7 +245,7 @@ struct program {
         double oz = -bbox.z0 - dz;
         //subject->translate(ox, 0.0f, oz);
 
-        camera_position = Point3D{0, -10, 4 * dx};
+        camera_position = Point3D{0, -10, 14 * dx};
         look_at_subject();
     }
 
