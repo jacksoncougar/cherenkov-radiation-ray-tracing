@@ -57,9 +57,12 @@ set(SRC World/ViewPlane.cpp
 add_executable(tracer ${SRC})
 set_property(TARGET tracer PROPERTY CXX_STANDARD 17)
 
+find_library(legacy legacy_stdio_definitions )
 target_link_libraries(tracer
         PRIVATE assimp::assimp
         PRIVATE stb 
+        PRIVATE nanogui
+        PRIVATE "${legacy}"
         PRIVATE json
         PRIVATE glad
         PRIVATE glfw
@@ -77,6 +80,12 @@ target_include_directories(tracer
         PUBLIC Utilities
         PUBLIC UserInterface
         PUBLIC World)
+
+add_custom_command(
+    TARGET tracer POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    $<TARGET_FILE_DIR:nanogui>
+    $<TARGET_FILE_DIR:tracer>)
 
 add_custom_command(TARGET tracer POST_BUILD
         COMMENT "Copying resources..."

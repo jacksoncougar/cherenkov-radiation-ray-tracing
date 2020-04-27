@@ -5,6 +5,8 @@
 #ifndef WXRAYTRACER_GLSL_HPP
 #define WXRAYTRACER_GLSL_HPP
 
+#include <stdio.h>
+#include <conio.h>
 #include <glad/glad.h>
 #include "GLFW/glfw3.h"
 
@@ -21,6 +23,33 @@
 #include <Matte.h>
 
 #include "ui.h"
+
+#include <nanogui/opengl.h>
+#include <nanogui/glutil.h>
+#include <nanogui/screen.h>
+#include <nanogui/window.h>
+#include <nanogui/layout.h>
+#include <nanogui/label.h>
+#include <nanogui/checkbox.h>
+#include <nanogui/button.h>
+#include <nanogui/toolbutton.h>
+#include <nanogui/popupbutton.h>
+#include <nanogui/combobox.h>
+#include <nanogui/progressbar.h>
+#include <nanogui/entypo.h>
+#include <nanogui/messagedialog.h>
+#include <nanogui/textbox.h>
+#include <nanogui/slider.h>
+#include <nanogui/imagepanel.h>
+#include <nanogui/imageview.h>
+#include <nanogui/vscrollpanel.h>
+#include <nanogui/colorwheel.h>
+#include <nanogui/colorpicker.h>
+#include <nanogui/graph.h>
+#include <nanogui/tabwidget.h>
+#include <nanogui\formhelper.h>
+
+
 
 struct Log {
 	template<typename... Args>
@@ -58,7 +87,10 @@ std::ostream& operator<<(std::ostream& out, const Point3D& point) {
 	return out << point.x << " " << point.y << " " << point.z;
 }
 
-struct program {
+
+nanogui::Screen* screen = nullptr;
+
+struct program : public nanogui::Screen {
 
 	EventDelegate<int> onKeyPressEvent{};
 
@@ -245,7 +277,7 @@ struct program {
 		double oz = -bbox.z0 - dz;
 		//subject->translate(ox, 0.0f, oz);
 
-		camera_position = Point3D{5 * dx, 0, 0 };
+		camera_position = Point3D{5 * dx, 15, 0 };
 		look_at_subject();
 	}
 
@@ -255,6 +287,7 @@ struct program {
 		world->camera_ptr->set_lookat(0, 0, 0);
 		world->camera_ptr->compute_uvw();
 	}
+
 
 	program(const char* attribute_image_filename, const char* mesh_filename) {
 
@@ -278,6 +311,62 @@ struct program {
 		glfwSetKeyCallback(window, key_callback);
 
 		glfwGetFramebufferSize(window, &width, &height);
+
+		initialize(window, false);
+
+		using namespace nanogui;
+		bool enabled = true;
+		FormHelper* gui = new FormHelper(this);
+		nanogui::ref<Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Form helper example");
+		gui->addGroup("Basic types");
+		this->setVisible(true);
+		this->performLayout();
+		nanoguiWindow->center();
+
+		::screen = this;
+
+		glfwSetCursorPosCallback(window,
+			[](GLFWwindow*, double x, double y) {
+				::screen->cursorPosCallbackEvent(x, y);
+			}
+		);
+
+		glfwSetMouseButtonCallback(window,
+			[](GLFWwindow*, int button, int action, int modifiers) {
+				::screen->mouseButtonCallbackEvent(button, action, modifiers);
+			}
+		);
+
+		glfwSetKeyCallback(window,
+			[](GLFWwindow*, int key, int scancode, int action, int mods) {
+				::screen->keyCallbackEvent(key, scancode, action, mods);
+			}
+		);
+
+		glfwSetCharCallback(window,
+			[](GLFWwindow*, unsigned int codepoint) {
+				::screen->charCallbackEvent(codepoint);
+			}
+		);
+
+		glfwSetDropCallback(window,
+			[](GLFWwindow*, int count, const char** filenames) {
+				::screen->dropCallbackEvent(count, filenames);
+			}
+		);
+
+		glfwSetScrollCallback(window,
+			[](GLFWwindow*, double x, double y) {
+				::screen->scrollCallbackEvent(x, y);
+			}
+		);
+
+		glfwSetFramebufferSizeCallback(window,
+			[](GLFWwindow*, int width, int height) {
+				::screen->resizeCallbackEvent(width, height);
+			}
+		);
+
 
 		// setup render_scene
 
@@ -355,6 +444,10 @@ struct program {
 		glBlitFramebuffer(0, 0, width, height, 0, height, width, 0, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+
+		drawContents();
+		drawWidgets();
 	}
 
 	~program() {

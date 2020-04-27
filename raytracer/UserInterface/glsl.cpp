@@ -2,6 +2,8 @@
 // Created by root on 10/3/20.
 //
 
+#include <stdio.h>
+#include <conio.h>
 #include "stb_image_write.h"
 #include "ui.h"
 #include <initializer_list>

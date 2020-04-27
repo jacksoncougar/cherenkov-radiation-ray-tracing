@@ -10,10 +10,155 @@
 #include "Material.h"
 #include <functional>
 #include <random>
+#include <array>
+
+RGBColor monte_carlo(Point3D x, Vector3D w, size_t number_of_samples, size_t number_of_secondary_samples, World* world, float max_t = std::numeric_limits<float>::max());
 
 RGBColor MarchingRayTracer::trace_ray(const Ray& ray) const {
 	return Tracer::trace_ray(ray);
 }
+
+auto emitter_location = Point3D{ 0, 0, 0 };
+const RGBColor& glow_colour = RGBColor{ 2 / 255., 203 / 255., 213 / 255. };
+float intensity = 1.0f;
+constexpr float a = 0.09;
+constexpr float s = 0.09;
+
+#define dot *
+
+// absorption coefficient at point p0
+constexpr auto mu_a = [](float t) {
+	return t * a;
+};
+
+// absorption coefficient at point t
+constexpr auto mu_s = [](float t) {
+	return t * s;
+};
+
+// extinction coefficient at point t
+constexpr auto mu_t = [&](float t) {
+	return mu_s(t) + mu_s(t);
+};
+
+// phase function
+constexpr auto f_p = [&](Vector3D w, Vector3D w_bar) { return 1 / (4 * PI); };
+
+auto random_variable_raw = []() {
+	static std::random_device rd;
+	static std::minstd_rand e2(rd());
+	static std::uniform_real_distribution<> dist(0, 1);
+	return dist(e2);
+};
+
+
+auto random_variable = []() {
+	return random_variable_raw();
+};
+
+float calculate_zeroth() {
+	auto result = 1 / mu_t(100);
+	return result;
+}
+
+auto zeroth = calculate_zeroth();
+
+auto sample_t = [&]() {
+	auto xi = random_variable();
+	auto result = -std::log(1 - xi) / zeroth;
+	return result;
+};
+
+auto S2_sample_raw = [&]() {
+	float u = random_variable();
+	float v = random_variable();
+	float theta = 2 * PI * u;
+	float phi = std::acos(2 * v - 1);
+	float x = std::sin(theta) * std::cos(phi);
+	float y = std::sin(theta) * std::sin(phi);
+	float z = std::cos(theta);
+	return Vector3D(x, y, z);
+};
+
+auto S2_sample = [&]() {
+	static std::array<Vector3D, 1000> samples;
+	static int i = 0;
+	static int fill = 0;
+
+	if (fill < samples.size()) {
+		samples[fill] = S2_sample_raw();
+		return samples[fill++];
+	}
+	else return samples[(size_t)(random_variable() * fill) % fill];
+};
+
+// radiance emitted from a volume at point x
+auto Le = [&](Point3D x, Vector3D w, World* world) -> RGBColor {
+
+	auto distance_from_source = (x - emitter_location).len_squared();
+
+	float result = 0;
+	result += 1.0f / distance_from_source;
+
+	return result * intensity * glow_colour;
+};
+
+// incident radiance at point in direction w
+auto Li = [&](Point3D x, Vector3D w, int number_of_samples, World* world) {
+	//todo: should probably be recursive within the medium.
+
+	auto emitter_direction = (x - emitter_location).hat();
+
+
+	// cheat: treat the light source as a specular lobe
+	//auto result = std::pow(std::max<float>(0.0f, emitter_direction dot w), 128);
+	auto result = monte_carlo(x, w, number_of_samples, 0, world);
+	return result * RGBColor{ 0 };
+};
+
+
+
+// in-scattering radiance
+auto Ls = [&](Point3D x, Vector3D w, int number_of_samples, World* world) {
+
+	RGBColor result{ 0 };
+	for (int i = 0; i < number_of_samples; ++i)
+	{
+		Vector3D w_bar = S2_sample();
+		result += f_p(w, w_bar) * Li(x, w_bar, number_of_samples, world);
+	}
+	return result / std::max(1, number_of_samples);
+};
+
+auto tau = [&](float t) {
+	return t * 0.08;
+};
+
+//transmittance
+auto T_r = [&](float t) {
+	return std::exp(-tau(t));
+};
+
+auto p = [&](float t) {
+	auto result = zeroth * std::exp(-zeroth * t);
+	return result;
+};
+
+auto Sample = [&](Point3D x, Point3D y, float t, Vector3D w, World* world, int number_of_samples) {
+	return T_r(t) / p(t) * (mu_a(t) * Le(y, w, world) + mu_s(t) * Ls(y, w, number_of_samples, world));
+};
+
+RGBColor monte_carlo(Point3D x, Vector3D w, size_t number_of_samples, size_t number_of_secondary_samples, World* world, float max_t)
+{
+	RGBColor result = { 0 };
+	for (int i = 0; i < number_of_samples; i++) {
+		auto t = sample_t();
+		while (t > max_t) { t = sample_t(); }
+		auto y = x + w * t;
+		result += Sample(x, y, t, w, world, number_of_secondary_samples);
+	}
+	return result / std::max<size_t>(1, number_of_samples);
+};
 
 RGBColor MarchingRayTracer::trace_ray(const Ray ray, const int depth) const {
 
@@ -24,179 +169,21 @@ RGBColor MarchingRayTracer::trace_ray(const Ray ray, const int depth) const {
 
 	ShadeRec sr(world_ptr->hit_objects(ray));
 
-	auto emitter_location = Point3D{ 0, 0, 0 };
-	const RGBColor& glow_colour = RGBColor{ 0.15, 0.182, .537 };
-	float intensity = 30.10f;
-
-#define dot *
-
-	// visibility function
-	auto V = [](Vector3D p0, Vector3D p1, ShadeRec* sr = nullptr) {
-		return 1.0; // assume everything is visible
-	};
-
-	// foreshortening function
-	auto D = [](Vector3D p0, Vector3D p1, ShadeRec* sr = nullptr) {
-
-		// we expect a shader record only if the point is on a surface.
-		// otherwise we assume that we are in a medium.
-
-		if (sr) {
-			auto w = Normal(p1 - p0);
-			return sr->normal dot w;
-		}
-		else return 1.0;
-	};
-
-	// geometric function
-	auto G = [V, D](Vector3D p0, Vector3D p1) {
-		return V(p0, p1) * D(p0, p1) * D(p1, p0) / (p0 - p1).len_squared();
-	};
-
-
-
-	// absorption coefficient at point p0
-	constexpr auto mu_a = [](float t) {
-		return t * 0.026094;
-	};
-
-	// absorption coefficient at point t
-	constexpr auto mu_s = [](float t) {
-		return t * 0.4201;
-	};
-
-
-
-	// extinction coefficient at point t
-	auto mu_t = [&](float t) {
-		return mu_s(t) + mu_s(t);
-	};
-
-	//scattering coefficient at point p0
-	// this term also controls how much light should scatter "in", which can be used to offset the
-	// geometric terms distance falloff.
-	auto scattering_at = [emitter_location](Vector3D p0) {
-		return 0.5201;
-	};
-
-	// radiance emitted from a volume at point x
-	auto Le = [&](Point3D x, Vector3D w) -> RGBColor {
-		float result = intensity * 1.0f / ((x - emitter_location).len_squared());
-		return result * glow_colour;
-	};
-
-	// incident radiance at point in direction w
-	auto Li = [&](Point3D x, Vector3D w) {
-		//todo: should probably be recursive within the medium.
-
-		auto emitter_direction = (x - emitter_location).hat();
-
-		// cheat: treat the light source as a specular lobe
-		auto result = std::pow(std::max<float>(0.0f, emitter_direction dot w), 128);
-		return result * glow_colour;
-	};
-
-	// phase function
-	constexpr auto f_p = [&](Vector3D w, Vector3D w_bar) { return 1 / (4 * PI); };
-
-	auto random_variable = []() {
-		static std::random_device rd;
-		static std::mt19937 e2(rd());
-		static std::uniform_real_distribution<> dist(0, 1);
-		return dist(e2);
-	};
-
-
-	auto zeroth = [&]() {
-		float moment = 0;
-		for (int i = 0; i < 100; i++)
-		{
-			moment += mu_t(i) / 100;
-		}
-		return 1 / moment;
-	};
-
-	auto sample_t = [&]() {
-		auto xi = random_variable();
-		auto result = -std::log(1 - xi) / zeroth();
-		return result;
-	};
-
-	auto S2_sample = [&]() {
-		float u = random_variable();
-		float v = random_variable();
-		float theta = 2 * PI * u;
-		float phi = std::acos(2 * v - 1);
-		float x = std::sin(theta) * std::cos(phi);
-		float y = std::sin(theta) * std::sin(phi);
-		float z = std::cos(theta);
-
-		return Vector3D(x, y, z);
-	};
-
-	// in-scattering radiance
-	auto Ls = [&](Point3D x, Vector3D w, int number_of_samples) {
-
-		RGBColor result{ 0 };
-		for (int i = 0; i < number_of_samples; ++i)
-		{
-			Vector3D w_bar = S2_sample();
-			result += f_p(w, w_bar) * Li(x, w_bar);
-		}
-		return result / number_of_samples;
-	};
-
-	auto tau = [&](float t) {
-		return t * 0.111;
-	};
-
-	//transmittance
-	auto T_r = [&](float t) {
-		return std::exp(-tau(t));
-	};
-
-
-
-	auto p = [&](float t) {
-		auto result = zeroth() * std::exp(-zeroth() * t);
-		return result;
-	};
-
-
-	auto Sample = [&](Point3D x, Point3D y, float t, Vector3D w) {
-		return /*T_r(t) / p(t) **/ (mu_a(t) * Le(y, w) + mu_s(t) * Ls(y, w, 16));
-	};
-
-
-
-	auto monte_carlo = [&](Point3D x, Vector3D w, size_t number_of_samples)
-	{
-		RGBColor result = { 0 };
-		for (int i = 0; i < number_of_samples; i++) {
-			const float max_depth = 1;
-			auto t = sample_t();
-			auto y = x + w * t;
-			result += Sample(x, y, t, w);
-		}
-		return result / number_of_samples;
-	};
-
 	auto [x, w] = ray;
 
 	auto tone_map = [](const RGBColor& colour) {
 		return std::pow(colour / (colour + RGBColor{ 1 }), Vector3D{ 1.0f / 2.2f });
 	};
 
-	if (sr.hit_an_object) { 
+	if (sr.hit_an_object) {
 
-		float maximum = 1 / zeroth() * 2;
-
-		return { sr.t / maximum,sr.t / maximum,sr.t / maximum };
+		auto transmission = monte_carlo(x, w, 1, 1, world_ptr, sr.t) + Le(x + sr.t * w, -w, world_ptr);
+		return (transmission);
 
 	}
 	else {
 
-		auto transmission = monte_carlo(x, w, 4);
+		auto transmission = monte_carlo(x, w, 0, 1, world_ptr);
 		return (transmission);
 
 	}

@@ -1,6 +1,9 @@
 //
 // Created by root on 9/3/20.
 //
+#include <stdio.h>
+#include <conio.h>
+
 
 #include <glad/glad.h>
 #include "GLFW/glfw3.h"
@@ -16,5 +19,6 @@
 int main(int argc, char *argv[]) {
     assert(argc == 3);
     program program(argv[1], argv[2]);
+    
     exit(0);
 }
