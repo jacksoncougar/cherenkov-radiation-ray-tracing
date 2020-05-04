@@ -26,6 +26,7 @@
 #include "Camera.h"
 #include "Light.h"
 #include "Ambient.h"
+#include <mutex>
 
 using namespace std;
 
@@ -43,6 +44,7 @@ public:
     vector<GeometricObject *> objects;
     vector<Light *> lights;
 
+    std::mutex world_mutex;
     RenderThread *paintArea;    //connection to skeleton - wxRaytracer.h
 
 
@@ -50,6 +52,22 @@ public:
 public:
 
     World(void);
+
+
+    World* clone() const {
+        World* world = new World();
+        world->vp = this->vp;
+        world->background_color = this->background_color;
+        world->tracer_ptr = this->tracer_ptr->clone();
+        world->tracer_ptr->world_ptr = world;
+        world->ambient_ptr = this->ambient_ptr;
+        world->camera_ptr = this->camera_ptr;
+        world->sphere = this->sphere;
+        world->objects = this->objects;
+        world->lights = this->lights;
+        world->paintArea = this->paintArea;
+        return world;
+    }
 
     ~World();
 

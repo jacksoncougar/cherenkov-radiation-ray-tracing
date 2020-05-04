@@ -29,11 +29,11 @@ public:
 
     RGBColor shade(ShadeRec &sr) override {
         Vector3D wo = -sr.ray.d;
-        RGBColor L = brdf.rho(sr, wo) * sr.w.ambient_ptr->L(sr);
-        auto num_lights = sr.w.lights.size();
+        RGBColor L = brdf.rho(sr, wo) * sr.w->ambient_ptr->L(sr);
+        auto num_lights = sr.w->lights.size();
 
         for (int j = 0; j < num_lights; j++) {
-            Vector3D wi = sr.w.lights[j]->get_direction(sr);
+            Vector3D wi = sr.w->lights[j]->get_direction(sr);
             //if (sr.normal * wi > 0.0)
                 L += brdf.f(sr, wo, wi);
         }

@@ -52,7 +52,10 @@ set(SRC World/ViewPlane.cpp
         Utilities/ShadeRec.cpp
         Utilities/Vector3D.cpp
         UserInterface/main.cpp
-        UserInterface/ui.cpp Tracers/MarchingRayTracer.cpp Tracers/MarchingRayTracer.hpp)
+        UserInterface/ui.cpp Tracers/MarchingRayTracer.cpp Tracers/MarchingRayTracer.hpp
+        Materials/Emissive.cpp
+        Materials/Emissive.h
+     "Lights/PointLight.h" "Lights/PointLight.cpp")
 
 add_executable(tracer ${SRC})
 set_property(TARGET tracer PROPERTY CXX_STANDARD 17)
@@ -62,8 +65,8 @@ target_link_libraries(tracer
         PRIVATE assimp::assimp
         PRIVATE stb 
         PRIVATE nanogui
+        
         PRIVATE "${legacy}"
-        PRIVATE json
         PRIVATE glad
         PRIVATE glfw
         PRIVATE OpenGL::GL)

@@ -1,4 +1,4 @@
-//
+﻿//
 // Created by root on 10/3/20.
 //
 
@@ -24,6 +24,9 @@
 
 #include "ui.h"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 #include <nanogui/opengl.h>
 #include <nanogui/glutil.h>
 #include <nanogui/screen.h>
@@ -48,6 +51,10 @@
 #include <nanogui/graph.h>
 #include <nanogui/tabwidget.h>
 #include <nanogui\formhelper.h>
+#include <MarchingRayTracer.hpp>
+#include <iomanip>
+#include <Emissive.h>
+#include "PointLight.h"
 
 
 
@@ -90,6 +97,8 @@ std::ostream& operator<<(std::ostream& out, const Point3D& point) {
 
 nanogui::Screen* screen = nullptr;
 
+struct program* that;
+
 struct program : public nanogui::Screen {
 
 	EventDelegate<int> onKeyPressEvent{};
@@ -100,76 +109,35 @@ struct program : public nanogui::Screen {
 	std::shared_ptr<RenderThread> renderThread;
 	std::shared_ptr<World> world;
 	std::shared_ptr<Instance> subject;
+	std::shared_ptr<Instance> box;
 	std::shared_ptr<ImageTexture> image;
 	std::shared_ptr<Material> active_material;
-	std::shared_ptr<Grid> mesh;
+	std::shared_ptr<Grid> reactor_grid;
+	std::shared_ptr<Grid> box_grid;
 
 	Point3D camera_position = { 0, -10, 26 };
 
 	bool redraw = false;
+	bool show_params = true;
 
 	int width = 640;
 	int height = 480;
 	float scale_factor = 1.0f;
 
+	nanogui::Color glow_color;
+	nanogui::Vector3f light0;
+	nanogui::Vector3f light1;
+
 	void onKeyPress(int key) {
 		switch (key) {
-
-		case GLFW_KEY_F1:
-			load_silhouette_material();
-
-			renderThread->detach(); // ignore current solution...
-			renderThread = std::make_shared<RenderThread>(world);
-			break;
-
-		case GLFW_KEY_F2:
-			load_highlights_material();
-
-			renderThread->detach(); // ignore current solution...
-			renderThread = std::make_shared<RenderThread>(world);
-			break;
-
-		case GLFW_KEY_W:
-			camera_position.y += scale_factor;
-			look_at_subject();
-			break;
-
-		case GLFW_KEY_S:
-			camera_position.y -= scale_factor;
-			look_at_subject();
-			break;
-
-		case GLFW_KEY_F3:
-			load_depth_material();
-
-			renderThread->detach(); // ignore current solution...
-			renderThread = std::make_shared<RenderThread>(world);
-			break;
-
-		case GLFW_KEY_X:
-			subject->rotate_x(90.0f);
-			break;
-
-		case GLFW_KEY_Y:
-			subject->rotate_y(90.0f);
-			break;
-
-		case GLFW_KEY_Z:
-			subject->rotate_z(90.0f);
-			break;
-
-		case GLFW_KEY_UP:
-			subject->scale(1.1f);
-			break;
-
-		case GLFW_KEY_DOWN:
-			subject->scale(0.9f);
-			break;
+		case GLFW_KEY_ESCAPE:
+			show_params = !show_params;
+			return;
 
 		default:
 			onKeyPressEvent(key);
 		}
-		redraw = true;
+		//redraw = true;
 	}
 
 	void load_attribute_image(std::string filename) {
@@ -177,16 +145,17 @@ struct program : public nanogui::Screen {
 		image = std::make_shared<ImageTexture>(std::make_shared<Image>(filename));
 	}
 
-	void load_mesh_data(std::string filename) {
+	std::shared_ptr<Grid> load_mesh_data(std::string filename) {
 		debug_log.info("Loading mesh: '", filename, "'");
-		mesh = std::make_shared<Grid>(new Mesh());
-		mesh->read_smooth_triangles(const_cast<char*>(filename.c_str()));
-		mesh->setup_cells();
+		auto grid = std::make_shared<Grid>(new Mesh());
+		grid->read_smooth_triangles(const_cast<char*>(filename.c_str()));
+		grid->setup_cells();
+		return grid;
 	}
 
-	void load_silhouette_material() {
-		debug_log.info("Loading silhouette material");
-		auto material = std::make_shared<Matte>();
+	void load_emissive_material() {
+		debug_log.info("Loading emissive material");
+		auto material = std::make_shared<Emissive>(reactor_grid->mesh_ptr);
 		active_material = material;
 		subject->set_material(active_material.get());
 
@@ -277,19 +246,67 @@ struct program : public nanogui::Screen {
 		double oz = -bbox.z0 - dz;
 		//subject->translate(ox, 0.0f, oz);
 
-		camera_position = Point3D{5 * dx, 15, 0 };
+		camera_position = Point3D{ 33.6, 12.9, -13 };
 		look_at_subject();
 	}
 
 	void look_at_subject() const {
 		debug_log.info(camera_position);
 		world->camera_ptr->set_eye(camera_position);
-		world->camera_ptr->set_lookat(0, 0, 0);
+		world->camera_ptr->set_lookat(-1.81, 3.318, -1.479);
 		world->camera_ptr->compute_uvw();
 	}
 
+	std::string create_filename(std::chrono::milliseconds render_time = 0ms) {
 
-	program(const char* attribute_image_filename, const char* mesh_filename) {
+		auto now = std::chrono::system_clock::now();
+		auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+		std::stringstream ss;
+		ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d.%H.%M.%S");
+		ss << ".png";
+
+		return ss.str();
+	}
+
+	void save_as_png() {
+		auto filename = create_filename();
+		auto pixels = renderThread->pixel_data(false);
+		int stride = 3;
+		stbi_write_png(filename.c_str(), width, height, 3, pixels.data(), width * stride);
+
+		std::fstream fh;
+
+		auto data_filename = filename + ".txt";
+		fh.open(data_filename.c_str(), std::fstream::out);
+		if (fh.is_open())
+		{
+			fh << params;
+		}
+
+	}
+
+	void reload_render_params() {
+		std::fstream fh;
+		fh.open(".settings", std::fstream::in | std::fstream::binary);
+		if (fh.is_open())
+		{
+			fh.read((char*)&params, sizeof(params));
+		}
+	}
+
+	void save_render_params() {
+		std::fstream fh;
+		fh.open(".settings", std::fstream::out | std::fstream::binary);
+		if (fh.is_open())
+		{
+			fh.write((char*)&params, sizeof(params));
+		}
+	}
+
+	program(const char* mesh_filename, const char* mesh2_filename, RayMarchingParameters params = {}) {
+
+		that = this;
 
 		if (!glfwInit()) {
 
@@ -308,20 +325,129 @@ struct program : public nanogui::Screen {
 		glfwSetWindowUserPointer(window, this);
 		gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 		glfwSwapInterval(1);
-		glfwSetKeyCallback(window, key_callback);
 
 		glfwGetFramebufferSize(window, &width, &height);
 
 		initialize(window, false);
 
+		::params = params;
+		reload_render_params();
+
+		reactor_grid = load_mesh_data(mesh_filename);
+		box_grid = load_mesh_data(mesh2_filename);
+
+		world = std::make_shared<World>();
+		world->build();
+		subject = std::make_shared<Instance>(reactor_grid.get());
+		box = std::make_shared<Instance>(box_grid.get());
+		world->objects.clear();
+		world->vp.hres = width;
+		world->vp.vres = height;
+		world->add_object(subject.get());
+
+		for (auto&& light : params.emitter_locations)
+		{
+			auto directional = new ParticleEmitter(light, params.glow_colour);
+			directional->set_intensity(params.intensity);
+			world->add_light(directional);
+		}
+
+		//world->add_object(box.get());
+
+		focus_subject();
+
+		auto material = std::make_shared<Matte>();
+		//active_material = material;
+		box->set_material(material.get());
+		subject->set_material(material.get());
+
+		load_emissive_material();
+
+		renderThread = std::make_shared<RenderThread>(world);
+
+		// gui
+
 		using namespace nanogui;
 		bool enabled = true;
 		FormHelper* gui = new FormHelper(this);
-		nanogui::ref<Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Form helper example");
-		gui->addGroup("Basic types");
+		nanogui::ref<Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Render Settings");
+
+
+		gui->addGroup("Parameters");
+		gui->addVariable("a", params.a);
+		gui->addVariable("s", params.s);
+		gui->addVariable("extinction", params.extinction);
+		auto intensity_widget = gui->addVariable("intensity", params.intensity);
+		intensity_widget->setCallback([&](float value)
+			{
+				params.intensity = value;
+				for (auto&& light : world->lights)
+				{
+					auto emitter = dynamic_cast<ParticleEmitter*>(light);
+					if (emitter) {
+						emitter->set_intensity(params.intensity);
+					}
+				}
+			});
+		gui->addVariable("falloff", params.falloff);
+		auto colour_widget = gui->addVariable("colour", glow_color);
+		colour_widget->setFinalCallback([&](auto changed) {
+			params.glow_colour = RGBColor{ glow_color.x(), glow_color.y(), glow_color.z() };
+			for (auto&& light : world->lights)
+			{
+				auto emitter = dynamic_cast<ParticleEmitter*>(light);
+				if (emitter) {
+					emitter->set_color(params.glow_colour);
+				}
+			}
+			});
+
+		gui->addGroup("Samples");
+		gui->addVariable("steps:0", params.parameters[0].primary_samples);
+		gui->addVariable("in-scattering:0", params.parameters[0].secondary_samples);
+		gui->addVariable("reflection:0", params.parameters[0].in_scattering_samples);
+		gui->addVariable("steps:1", params.parameters[1].primary_samples);
+		gui->addVariable("in-scattering:1", params.parameters[1].secondary_samples);
+		gui->addVariable("reflection:1", params.parameters[1].in_scattering_samples);
+		gui->addVariable("steps:2", params.parameters[2].primary_samples);
+		gui->addVariable("in-scattering:2", params.parameters[2].secondary_samples);
+
+		FormHelper* gui2 = new FormHelper(this);
+		nanogui::ref<Window> nanoguiWindow2 = gui2->addWindow(Eigen::Vector2i(10, 10), "Render Settings");
+
+		gui2->addGroup("Light:0");
+		gui2->addVariable("x", params.emitter_locations[0].x);
+		gui2->addVariable("y", params.emitter_locations[0].y);
+		gui2->addVariable("z", params.emitter_locations[0].z);
+
+		gui2->addGroup("Light:1");
+		gui2->addVariable("x", params.emitter_locations[1].x);
+		gui2->addVariable("y", params.emitter_locations[1].y);
+		gui2->addVariable("z", params.emitter_locations[1].z);
+
+		FormHelper* gui3 = new FormHelper(this);
+		nanogui::ref<Window> nanoguiWindow3 = gui3->addWindow(Eigen::Vector2i(10, 10), "Light Settings");
+
+		gui3->addGroup("Gather");
+		gui3->addVariable("surface:0", params.gather_surface);
+		gui3->addVariable("absorption:0", params.parameters[0].gather_absorption);
+		gui3->addVariable("scattering:0", params.parameters[0].gather_scattering);
+		gui3->addVariable("absorption:1", params.parameters[1].gather_absorption);
+		gui3->addVariable("scattering:1", params.parameters[1].gather_scattering);
+		gui3->addVariable("absorption:2", params.parameters[2].gather_absorption);
+		gui3->addVariable("scattering:2", params.parameters[2].gather_scattering);
+
+		gui3->addGroup("Commands");
+		gui3->addButton("Refresh", [&]() { redraw = true; });
+		gui3->addButton("Save", [&]() { save_as_png(); });
+		gui3->addButton("Reset Params", [&]() { params = {}; gui3->refresh(); gui->refresh(); gui2->refresh(); });
+
 		this->setVisible(true);
 		this->performLayout();
-		nanoguiWindow->center();
+
+		nanoguiWindow->setPosition(Eigen::Vector2i(10, 10));
+		nanoguiWindow2->setPosition(Eigen::Vector2i(width - 10 - nanoguiWindow2->width(), 10));
+		nanoguiWindow3->setPosition(Eigen::Vector2i(width - 10 - nanoguiWindow2->width(), 10));
 
 		::screen = this;
 
@@ -340,6 +466,7 @@ struct program : public nanogui::Screen {
 		glfwSetKeyCallback(window,
 			[](GLFWwindow*, int key, int scancode, int action, int mods) {
 				::screen->keyCallbackEvent(key, scancode, action, mods);
+				if (action == GLFW_PRESS)that->onKeyPress(key);
 			}
 		);
 
@@ -367,25 +494,6 @@ struct program : public nanogui::Screen {
 			}
 		);
 
-
-		// setup render_scene
-
-		world = std::make_shared<World>();
-		world->build();
-
-		load_attribute_image(attribute_image_filename);
-		load_mesh_data(mesh_filename);
-		subject = std::make_shared<Instance>(mesh.get());;
-		load_silhouette_material();
-
-		world->objects.clear();
-		world->vp.hres = width;
-		world->vp.vres = height;
-		world->add_object(subject.get());
-
-		focus_subject();
-		renderThread = std::make_shared<RenderThread>(world);
-
 		// setup render target & texture
 
 		glGenTextures(1, &texture);
@@ -408,17 +516,18 @@ struct program : public nanogui::Screen {
 		}
 	}
 
-	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-		auto program = reinterpret_cast<struct program*>(glfwGetWindowUserPointer(window));
-		if (action == GLFW_PRESS) program->onKeyPress(key);
-	}
 
 	void update(float time = 0) {
 		if (redraw) {
+			save_render_params();
 			glfwGetFramebufferSize(window, &width, &height);
 			world->vp.hres = width;
 			world->vp.vres = height;
-			renderThread->detach(); // ignore current solution...
+
+			world->camera_ptr->CANCEL_THREAD.clear();
+			renderThread->join(); // ignore current solution...
+			world->camera_ptr->CANCEL_THREAD.test_and_set();
+
 			renderThread = std::make_shared<RenderThread>(world);
 			redraw = false;
 		}
@@ -445,9 +554,10 @@ struct program : public nanogui::Screen {
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
-
-		drawContents();
-		drawWidgets();
+		if (show_params) {
+			drawContents();
+			drawWidgets();
+		}
 	}
 
 	~program() {

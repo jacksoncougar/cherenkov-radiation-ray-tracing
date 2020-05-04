@@ -10,39 +10,72 @@
 #include "Material.h"
 #include <functional>
 #include <random>
-#include <array>
-
-RGBColor monte_carlo(Point3D x, Vector3D w, size_t number_of_samples, size_t number_of_secondary_samples, World* world, float max_t = std::numeric_limits<float>::max());
+#include <iomanip>
 
 RGBColor MarchingRayTracer::trace_ray(const Ray& ray) const {
 	return Tracer::trace_ray(ray);
 }
 
-auto emitter_location = Point3D{ 0, 0, 0 };
-const RGBColor& glow_colour = RGBColor{ 2 / 255., 203 / 255., 213 / 255. };
-float intensity = 1.0f;
-constexpr float a = 0.09;
-constexpr float s = 0.09;
+std::ostream& operator<<(std::ostream& out, const RGBColor& colour) {
+	auto&& [r, g, b] = colour;
+	out << "(" << r << ", " << g << ", " << b << ")";
+	return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const RayMarchingParameters& params) {
+
+	out << "# Parameters\n";
+	out << "absorbance=" << params.a << '\n';
+	out << "scattering=" << params.s << '\n';
+	out << "glow_colour=" << params.glow_colour << '\n';
+	out << "extinction=" << params.extinction << '\n';
+	out << "intensity=" << params.intensity << '\n';
+	out << "# Samples\n";
+	out << "primary:0=" << params.parameters[0].primary_samples << '\n';
+	out << "secondary:0=" << params.parameters[0].secondary_samples << '\n';
+	out << "primary:1=" << params.parameters[1].primary_samples << '\n';
+	out << "secondary:1=" << params.parameters[1].secondary_samples << '\n';
+	out << "# Gathers\n";
+	out << "surface:0=" << params.gather_surface << '\n';
+	out << "absorption:0=" << params.parameters[0].gather_absorption << '\n';
+	out << "scattering:0=" << params.parameters[0].gather_scattering << '\n';
+	out << "absorption:1=" << params.parameters[1].gather_absorption << '\n';
+	out << "scattering:1=" << params.parameters[1].gather_scattering << '\n';
+	return out;
+}
+
+RayMarchingParameters params = RayMarchingParameters();
+
+
+LevelParameters getParameters(int depth) {
+	switch (depth)
+	{
+	case 0: return params.parameters[0];
+	case 1: return params.parameters[1];
+	case 2: return params.parameters[2];
+	default: return { 0,0 };
+	}
+}
 
 #define dot *
 
 // absorption coefficient at point p0
-constexpr auto mu_a = [](float t) {
-	return t * a;
+auto mu_a = [](float t) {
+	return t * params.a;
 };
 
 // absorption coefficient at point t
-constexpr auto mu_s = [](float t) {
-	return t * s;
+auto mu_s = [](float t) {
+	return t * params.s;
 };
 
 // extinction coefficient at point t
-constexpr auto mu_t = [&](float t) {
+auto mu_t = [&](float t) {
 	return mu_s(t) + mu_s(t);
 };
 
 // phase function
-constexpr auto f_p = [&](Vector3D w, Vector3D w_bar) { return 1 / (4 * PI); };
+constexpr auto f_p = [&](Vector3D /*w*/, Vector3D /*w_bar*/) { return 1.0 / (4.0 * PI); };
 
 auto random_variable_raw = []() {
 	static std::random_device rd;
@@ -57,7 +90,7 @@ auto random_variable = []() {
 };
 
 float calculate_zeroth() {
-	auto result = 1 / mu_t(100);
+	auto result = 1 / mu_t(280);
 	return result;
 }
 
@@ -81,9 +114,10 @@ auto S2_sample_raw = [&]() {
 };
 
 auto S2_sample = [&]() {
-	static std::array<Vector3D, 1000> samples;
-	static int i = 0;
-	static int fill = 0;
+	thread_local std::array<Vector3D, 10000> samples;
+	thread_local int i = 0;
+	thread_local int fill = 0;
+
 
 	if (fill < samples.size()) {
 		samples[fill] = S2_sample_raw();
@@ -92,51 +126,27 @@ auto S2_sample = [&]() {
 	else return samples[(size_t)(random_variable() * fill) % fill];
 };
 
-// radiance emitted from a volume at point x
+// radiance emitted from a volume at point x in direction w
 auto Le = [&](Point3D x, Vector3D w, World* world) -> RGBColor {
 
-	auto distance_from_source = (x - emitter_location).len_squared();
-
-	float result = 0;
-	result += 1.0f / distance_from_source;
-
-	return result * intensity * glow_colour;
-};
-
-// incident radiance at point in direction w
-auto Li = [&](Point3D x, Vector3D w, int number_of_samples, World* world) {
-	//todo: should probably be recursive within the medium.
-
-	auto emitter_direction = (x - emitter_location).hat();
-
-
-	// cheat: treat the light source as a specular lobe
-	//auto result = std::pow(std::max<float>(0.0f, emitter_direction dot w), 128);
-	auto result = monte_carlo(x, w, number_of_samples, 0, world);
-	return result * RGBColor{ 0 };
-};
-
-
-
-// in-scattering radiance
-auto Ls = [&](Point3D x, Vector3D w, int number_of_samples, World* world) {
-
 	RGBColor result{ 0 };
-	for (int i = 0; i < number_of_samples; ++i)
-	{
-		Vector3D w_bar = S2_sample();
-		result += f_p(w, w_bar) * Li(x, w_bar, number_of_samples, world);
+	ShadeRec sr(*world);
+	sr.hit_point = x;
+
+	for (auto&& emission_source : world->lights) {
+		result += emission_source->L(sr);
 	}
-	return result / std::max(1, number_of_samples);
+
+	return result;
 };
 
 auto tau = [&](float t) {
-	return t * 0.08;
+	return t * params.extinction;
 };
 
 //transmittance
 auto T_r = [&](float t) {
-	return std::exp(-tau(t));
+	return params.falloff * std::exp(-tau(t));
 };
 
 auto p = [&](float t) {
@@ -144,20 +154,74 @@ auto p = [&](float t) {
 	return result;
 };
 
-auto Sample = [&](Point3D x, Point3D y, float t, Vector3D w, World* world, int number_of_samples) {
-	return T_r(t) / p(t) * (mu_a(t) * Le(y, w, world) + mu_s(t) * Ls(y, w, number_of_samples, world));
+// incident radiance at point in direction w
+RGBColor MarchingRayTracer::Li(Point3D x, Vector3D w, int depth, World* world) const {
+	return trace_ray({ x,w }, depth + 1);
 };
 
-RGBColor monte_carlo(Point3D x, Vector3D w, size_t number_of_samples, size_t number_of_secondary_samples, World* world, float max_t)
+
+
+auto _if = [&](bool condition, auto result, auto default) {
+	if (condition) return result;
+	else return default;
+};
+
+// in-scattering radiance
+RGBColor MarchingRayTracer::Ls(Point3D x, Vector3D w, int depth, World * world) const {
+
+	RGBColor result{ 0 };
+
+	auto number_of_samples = getParameters(depth).secondary_samples;
+	for (int i = 0; i < number_of_samples; ++i)
+	{
+		Vector3D w_bar = S2_sample();
+		result += f_p(w, w_bar) * Li(x, w_bar, depth, world);
+	}
+	return result / std::max(1, number_of_samples);
+};
+
+
+
+// in-scattering radiance at surface
+RGBColor MarchingRayTracer::Ls2(Point3D x, Vector3D n, int depth, World * world) const {
+
+	RGBColor result{ 0 };
+
+	auto number_of_samples = getParameters(depth).in_scattering_samples;
+	for (int i = 0; i < number_of_samples; ++i)
+	{
+		Vector3D w_bar = S2_sample();
+		result += f_p(n, w_bar) * std::abs(n dot w_bar) * trace_ray(Ray{ x, w_bar }, depth + 1);
+
+	}
+	return result / std::max(1, number_of_samples);
+};
+
+
+RGBColor MarchingRayTracer::Sample(Point3D x, Point3D y, float t, Vector3D w, World * world, int depth) const {
+
+	auto ga = getParameters(depth).gather_absorption;
+	auto gs = getParameters(depth).gather_scattering;
+	return T_r(t) / p(t) * (
+		_if(ga, mu_a(t) * Le(y, w, world), RGBColor{ 0 }) +
+		_if(gs, mu_s(t) * Ls(y, w, depth + 1, world), RGBColor{ 0 })
+		);
+};
+
+RGBColor MarchingRayTracer::monte_carlo(Point3D x, Vector3D w, int depth, World * world, float max_t) const
 {
 	RGBColor result = { 0 };
-	for (int i = 0; i < number_of_samples; i++) {
-		auto t = sample_t();
-		while (t > max_t) { t = sample_t(); }
+	auto number_of_samples = getParameters(depth).primary_samples;
+	auto steps = number_of_samples;
+	auto step_t = max_t / steps;
+
+	for (int step = 0; step < steps; ++step) {
+		auto t = step_t * step;
 		auto y = x + w * t;
-		result += Sample(x, y, t, w, world, number_of_secondary_samples);
+		result += Sample(x, y, t, w, world, depth);
 	}
-	return result / std::max<size_t>(1, number_of_samples);
+
+	return result / std::max<size_t>(1, steps);
 };
 
 RGBColor MarchingRayTracer::trace_ray(const Ray ray, const int depth) const {
@@ -171,24 +235,60 @@ RGBColor MarchingRayTracer::trace_ray(const Ray ray, const int depth) const {
 
 	auto [x, w] = ray;
 
-	auto tone_map = [](const RGBColor& colour) {
-		return std::pow(colour / (colour + RGBColor{ 1 }), Vector3D{ 1.0f / 2.2f });
+	auto tone_map_john_hable = [](const RGBColor& colour) -> RGBColor {
+
+		float A = 0.15;
+		float B = 0.50;
+		float C = 0.10;
+		float D = 0.20;
+		float E = 0.02;
+		float F = 0.30;
+
+		return ((colour * (A * colour + C * B) + D * E) / (colour * (A * colour + B) + D * F)) - E / F;
+	};
+
+	auto tone_map2 = [&](const RGBColor& colour) -> RGBColor {
+		return tone_map_john_hable(colour) / tone_map_john_hable(RGBColor(1.5, 1.5, 1.5));
+	};
+	auto tone_map3 = [&](const RGBColor& colour) -> RGBColor {
+		return colour / (colour + RGBColor(1));
+	};
+
+	auto tone_map = [](const RGBColor& colour) -> RGBColor {
+		auto [r, g, b] = colour;
+		float L = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+		auto nl = L / (L + 1);
+		auto scale = nl / L;
+		r *= scale;
+		g *= scale;
+		b *= scale;
+
+		return { r,g,b };
 	};
 
 	if (sr.hit_an_object) {
 
-		auto transmission = monte_carlo(x, w, 1, 1, world_ptr, sr.t) + Le(x + sr.t * w, -w, world_ptr);
-		return (transmission);
+		auto surface_color = T_r(sr.t) / p(sr.t) * sr.material_ptr->shade(sr);
+		auto irradiance = T_r(sr.t) / p(sr.t) * Ls2(sr.hit_point, sr.normal, depth, world_ptr);
+		auto transmission = monte_carlo(x, w, depth, world_ptr, sr.t);
+		auto radiance = surface_color + irradiance + transmission;
+		if (depth == 0)
+			return tone_map3(radiance);
+		else
+			return radiance;
 
 	}
 	else {
 
-		auto transmission = monte_carlo(x, w, 0, 1, world_ptr);
-		return (transmission);
+		auto transmission = monte_carlo(x, w, depth, world_ptr);
+		if (depth == 0)
+			return  tone_map3(transmission);
+		else
+			return transmission;
 
 	}
 }
 
 MarchingRayTracer::MarchingRayTracer(
-	World* pWorld
+	World * pWorld
 ) : Tracer(pWorld) {}

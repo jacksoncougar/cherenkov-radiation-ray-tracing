@@ -26,9 +26,12 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE 3rd-party/stb)
 
-add_library(json INTERFACE)
-target_include_directories(json INTERFACE 3rd-party/nlohmann/include)
-
+include(ExternalProject)
+ExternalProject_Add(cxxopts_external
+GIT_REPOSITORY https://github.com/jarro2783/cxxopts.git 
+PREFIX lib
+STEP_TARGETS   build
+)
 
 add_subdirectory(raytracer)
  

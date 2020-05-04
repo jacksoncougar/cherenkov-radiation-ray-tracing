@@ -17,35 +17,52 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <iostream>
 
 class Image {
 
 public:
 
-    std::unique_ptr<unsigned char> texel_data;
-    int width{};
-    int height{};
-    int channels{};
+	int width{};
+	int height{};
+	int channels{};
+	std::vector<std::uint8_t> texel_data;
 
-    Image(const std::string &filename);
+	Image(const std::string& filename);
 
-    template<typename T>
-    T sample(int x, int y) {
+	Image(int width, int height, int number_of_channels)
+		: width(width), height(height), channels(number_of_channels), texel_data(width* height* channels * sizeof(std::uint8_t))
+	{
 
-        auto stride = channels * sizeof(char);
-        auto offset = y * width * stride + x * stride;
+	}
 
-        assert(channels == 3);
+	template<typename T>
+	T sample(int x, int y) {
 
-        auto r = *(texel_data.get() + offset + 0) /
-                 static_cast<float>(std::numeric_limits<unsigned char>::max());
-        auto g = *(texel_data.get() + offset + 1) /
-                 static_cast<float>(std::numeric_limits<unsigned char>::max());
-        auto b = *(texel_data.get() + offset + 2) /
-                 static_cast<float>(std::numeric_limits<unsigned char>::max());
+		auto stride = channels * sizeof(std::uint8_t);
+		auto offset = y * width * stride + x * stride;
 
-        return {r, g, b};
-    }
+		assert(channels == 3);
+
+		auto r = texel_data[offset + 0] /
+			static_cast<float>(std::numeric_limits<std::uint8_t>::max());
+		auto g = texel_data[offset + 1] /
+			static_cast<float>(std::numeric_limits<std::uint8_t>::max());
+		auto b = texel_data[offset + 2] /
+			static_cast<float>(std::numeric_limits<std::uint8_t>::max());
+
+		return { r, g, b };
+	}
+
+	void set(int x, int y, std::uint8_t r, std::uint8_t g, std::uint8_t b) {
+
+		auto stride = channels * sizeof(std::uint8_t);
+		auto offset = y * width * stride + x * stride;
+
+		texel_data[offset + 0] = r;
+		texel_data[offset + 1] = g;
+		texel_data[offset + 2] = b;
+	}
 
 };
 

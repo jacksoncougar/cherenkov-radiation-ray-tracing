@@ -12,7 +12,7 @@ public:
 
     Material(const Material &material);
 
-    virtual Material *clone(void) const = 0;
+    virtual Material* clone(void) const { return NULL;  } // blach
 
     virtual ~Material(void);
 

@@ -24,6 +24,13 @@
 #include "Point3D.h"
 #include "Normal.h"
 	
+struct Tri
+{
+	int i, j, k;
+
+	Tri(int i, int j, int k) : i(i), j(j), k(k) {}
+};
+
 class Mesh {
 
 	public:
@@ -32,6 +39,7 @@ class Mesh {
 		std::vector<Normal> 			normals;				// average normal at each vertex;
 		std::vector<float>			u;						// u texture coordinate at each vertex
 		std::vector<float>			v;						// v texture coordinate at each vertex
+		std::vector< Tri> triangles;
 		std::vector<std::vector<int> > 	vertex_faces;			// the triangles shared by each vertex
 		int 					num_vertices; 			// number of vertices
 		int 					num_triangles; 			// number of triangles

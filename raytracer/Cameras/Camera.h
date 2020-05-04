@@ -6,14 +6,17 @@
 
 #include "Point3D.h"
 #include "Vector3D.h"
+#include <atomic>
 
 class World;  // can't #include "World" here because World contains a camera pointer
 
 //--------------------------------------------------------------------- class Camera
 
+
 class Camera {
 	public:
-	
+
+		std::atomic_flag CANCEL_THREAD = ATOMIC_FLAG_INIT;
 		Camera();   							// default constructor
 
 		Camera(const Camera& camera);			// copy constructor

@@ -47,9 +47,26 @@ Grid::Grid(void) : Compound(), nx(0), ny(0), nz(0), mesh_ptr(new Mesh), reverse_
 // ----------------------------------------------------------------  constructor
 // for rendering triangle meshes
 
-Grid::Grid(Mesh* _mesh_ptr)
-	: Compound(), nx(0), ny(0), nz(0), mesh_ptr(_mesh_ptr), reverse_normal(false) {
-	// The cells array will be empty
+Grid::Grid(Mesh* mesh)
+	: Compound(), nx(0), ny(0), nz(0), mesh_ptr(mesh), reverse_normal(false) {
+
+	try {
+
+		objects.reserve(mesh->num_triangles); // triangles will be stored in Compound::objects
+
+		for (auto& [i, j, k] : mesh->triangles) {
+
+			SmoothMeshTriangle* triangle_ptr = new SmoothMeshTriangle(mesh_ptr, i, j, k);
+			triangle_ptr->compute_normal(reverse_normal);
+			objects.push_back(triangle_ptr);
+
+		}
+
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Caught tinyply exception: " << e.what() << std::endl;
+	}
+
 }
 
 // ---------------------------------------------------------------- clone
@@ -283,7 +300,7 @@ void Grid::read_flat_triangles(char* file_name) {
 void Grid::read_smooth_triangles(char* file_name) {
 
 	read_ply_file(file_name, smooth);
-	compute_mesh_normals();
+	//compute_mesh_normals();
 }
 
 // ----------------------------------------------------------------------------- read_ply_file
@@ -341,30 +358,46 @@ void Grid::read_ply_file(char* file_name, const int triangle_type) {
 
 		std::memcpy(
 			verts.data(), scene->mMeshes[0]->mVertices, scene->mMeshes[0]->mNumVertices * sizeof(scene->mMeshes[0]->mVertices[0]));
+
 		mesh_ptr->num_vertices = verts.size();
 		for (auto& [x, y, z] : verts) mesh_ptr->vertices.emplace_back(x, y, z);
+		mesh_ptr->num_vertices = verts.size();
 
+		if (scene->mMeshes[0]->mNormals)
+		{
+			mesh_ptr->normals.reserve(scene->mMeshes[0]->mNumVertices);
+			for (int i = 0; i < scene->mMeshes[0]->mNumVertices; ++i)
+			{
+				auto&& [x, y, z] = scene->mMeshes[0]->mNormals[i];
+				mesh_ptr->normals.emplace_back(x, y, z);
+			}
+		}
+
+		if (scene->mMeshes[0]->mTextureCoords)
+		{
+			mesh_ptr->u.reserve(scene->mMeshes[0]->mNumVertices);
+			mesh_ptr->v.reserve(scene->mMeshes[0]->mNumVertices);
+			for (int i = 0; i < scene->mMeshes[0]->mNumVertices; ++i)
+			{
+				auto&& [u,v,w] = scene->mMeshes[0]->mTextureCoords[0][i];
+				mesh_ptr->u.emplace_back(u);
+				mesh_ptr->v.emplace_back(v);
+			}
+		}
 
 		mesh_ptr->num_triangles = scene->mMeshes[0]->mNumFaces;
 		objects.reserve(scene->mMeshes[0]->mNumFaces); // triangles will be stored in Compound::objects
 		mesh_ptr->vertex_faces.resize(mesh_ptr->num_vertices);
+		mesh_ptr->triangles.reserve(mesh_ptr->num_triangles);
 
 		int count = 0; // the number of faces read
 
-		struct triangle_face_data {
-			int i, j, k;
-			triangle_face_data(int i, int j , int k) : i(i), j(j), k(k) {}
-		};
-
-
-		std::vector<triangle_face_data> tris;
-		tris.reserve(scene->mMeshes[0]->mNumFaces);
 		for (int i = 0; i < scene->mMeshes[0]->mNumFaces; i++) {
 			assert(scene->mMeshes[0]->mFaces[i].mNumIndices == 3);
-			tris.emplace_back(scene->mMeshes[0]->mFaces[i].mIndices[0], scene->mMeshes[0]->mFaces[i].mIndices[1], scene->mMeshes[0]->mFaces[i].mIndices[2]);
+			mesh_ptr->triangles.emplace_back(scene->mMeshes[0]->mFaces[i].mIndices[0], scene->mMeshes[0]->mFaces[i].mIndices[1], scene->mMeshes[0]->mFaces[i].mIndices[2]);
 		}
 
-		for (auto& [i, j, k] : tris) {
+		for (auto& [i, j, k] : mesh_ptr->triangles) {
 			// grab an element from the file
 			// construct a mesh triangle of the specified type
 
@@ -681,6 +714,8 @@ void Grid::tessellate_smooth_sphere(const int horizontal_steps, const int vertic
 // The first part is the same as the code in BBox::hit
 
 bool Grid::hit(const Ray& ray, double& t, ShadeRec& sr) const {
+
+	//auto lock = std::lock_guard(grid_mutex);
 	double ox = ray.o.x;
 	double oy = ray.o.y;
 	double oz = ray.o.z;
@@ -750,6 +785,8 @@ bool Grid::hit(const Ray& ray, double& t, ShadeRec& sr) const {
 
 	if (t0 > t1)
 		return (false);
+
+	if (isinf(t0) || isinf(t1)) return false;
 
 	// initial cell coordinates
 
@@ -829,6 +866,7 @@ bool Grid::hit(const Ray& ray, double& t, ShadeRec& sr) const {
 	}
 
 	// traverse the grid
+
 
 	while (true) {
 		GeometricObject* object_ptr = cells[ix + nx * iy + nx * ny * iz];

@@ -11,13 +11,13 @@ void RenderThread::setPixel(int x, int y, int red, int green, int blue) {
 }
 
 std::vector<unsigned char> RenderThread::pixel_data(bool flip_y) {
-    auto lock = std::lock_guard(pixel_mutex);
 
     int stride = 3;
     int width = world->vp.hres;
     int height = world->vp.vres;
     std::vector<unsigned char> buffer(width * height * stride);
 
+    auto lock = std::lock_guard(pixel_mutex);
     for (auto pixel : pixels) {
         auto &[x, y, r, g, b] = pixel;
         //if (flip_y) y = height - y - 1;

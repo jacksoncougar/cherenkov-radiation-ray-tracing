@@ -34,9 +34,6 @@ void World::build(void) {
     // the ambient light here is the same as the default set in the World
     // constructor, and can therefore be left out
 
-    Ambient *ambient_ptr = new Ambient;
-    ambient_ptr->scale_radiance(1.0f);
-    set_ambient_light(ambient_ptr);
 
     background_color = RGBColor(0, 0, 0); // default color - this can be left out
 
@@ -51,12 +48,7 @@ void World::build(void) {
     pinhole_ptr->compute_uvw();
     set_camera(pinhole_ptr);
 
-    // light
 
-    Directional *light_ptr1 = new Directional;
-    light_ptr1->set_direction(-20, 20, 30);
-    light_ptr1->scale_radiance(0.80);
-    add_light(light_ptr1);
 
 }
 

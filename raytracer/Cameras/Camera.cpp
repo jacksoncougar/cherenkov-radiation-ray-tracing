@@ -14,7 +14,9 @@ Camera::Camera(void)
 		v(0, 1, 0),
 		w(0, 0, 1),
 		exposure_time(1.0)
-{}
+{
+	CANCEL_THREAD.test_and_set();
+}
 
 
 // ----------------------------------------------------------------- copy constructor
