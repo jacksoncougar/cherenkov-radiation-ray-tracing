@@ -57,7 +57,6 @@
 #include "PointLight.h"
 
 
-
 struct Log {
 	template<typename... Args>
 	static void info(Args... args) {
@@ -91,8 +90,7 @@ struct EventDelegate {
 };
 
 nanogui::Screen* screen = nullptr;
-
-struct program* that;
+struct program* that = nullptr;
 
 struct program : public nanogui::Screen {
 
@@ -115,6 +113,7 @@ struct program : public nanogui::Screen {
 
 	bool redraw = false;
 	bool show_params = true;
+	bool auto_save = false;
 
 	int width = 640;
 	int height = 480;
@@ -180,44 +179,6 @@ struct program : public nanogui::Screen {
 			}
 			if (key == GLFW_KEY_MINUS) {
 				material->s(material->s() - 1.0f);
-			}
-		};
-	}
-
-	void load_depth_material() {
-		debug_log.info("Loading depth material");
-		auto material = std::make_shared<svDepthMaterial>();
-		material->set_attribute_image(image);
-		auto bbox = subject->get_bounding_box();
-
-		// make sane defaults
-		auto z_min = std::min(
-			world->camera_ptr->eye.z - bbox.z1, world->camera_ptr->eye.z - bbox.z0
-		);
-		auto z_max = std::max(
-			world->camera_ptr->eye.z - bbox.z1, world->camera_ptr->eye.z - bbox.z0
-		);
-		material->z_min(z_min);
-		material->r(z_max / z_min);
-
-		active_material = material;
-		subject->set_material(active_material.get());
-
-		// setup handlers to allow sane step values... (params should be normalized to 0..1 somehow...)
-		onKeyPressEvent.handlers.clear();
-		onKeyPressEvent += [material, d = (z_max - z_min) / 10.0, r =
-			z_max / z_min / 10.0](int key) {
-			if (key == GLFW_KEY_EQUAL) {
-				material->r(material->r() + r);
-			}
-			if (key == GLFW_KEY_MINUS) {
-				material->r(material->r() - r);
-			}
-			if (key == GLFW_KEY_PAGE_UP) {
-				material->z_min(material->z_min() + d);
-			}
-			if (key == GLFW_KEY_PAGE_DOWN) {
-				material->z_min(material->z_min() - d);
 			}
 		};
 	}
@@ -302,7 +263,9 @@ struct program : public nanogui::Screen {
 
 	program(const char* mesh_filename, const char* mesh2_filename) {
 
-		that = this;
+		that = this; //todo hack
+
+		// GLFW init
 
 		if (!glfwInit()) {
 
@@ -326,7 +289,7 @@ struct program : public nanogui::Screen {
 
 		initialize(window, false);
 
-		//reload_render_params();
+		// Ray tracing framework init
 
 		reactor_grid = load_mesh_data(mesh_filename);
 		box_grid = load_mesh_data(mesh2_filename);
@@ -352,33 +315,31 @@ struct program : public nanogui::Screen {
 		focus_subject();
 
 		auto material = std::make_shared<Matte>();
-		//active_material = material;
 		box->set_material(material.get());
 		subject->set_material(material.get());
 
 		load_emissive_material();
 
 		onFinished += [&](auto status) {
-			save_as_png();
-			if (params.batch) exit(0);
+			if (auto_save) { save_as_png(); }
+			if (params.batch) { exit(0); }
 		};
 
 		renderThread = std::make_shared<RenderThread>(world, [&]() {onFinished(0); });
 
-		// gui
+		// gui init
 
 		using namespace nanogui;
 		bool enabled = true;
 		FormHelper* gui = new FormHelper(this);
 		nanogui::ref<Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Render Settings");
 
-
 		gui->addGroup("Parameters");
-		gui->addVariable("a", params.a);
-		gui->addVariable("s", params.s);
-		gui->addVariable("extinction", params.extinction);
-		auto intensity_widget = gui->addVariable("intensity", params.intensity);
-		intensity_widget->setCallback([&](float value) 
+		gui->addVariable("absorption", params.a);
+		gui->addVariable("scattering", params.s);
+		gui->addVariable("transmittance", params.extinction);
+		auto intensity_widget = gui->addVariable("brightness", params.intensity);
+		intensity_widget->setCallback([&](float value)
 			{
 				params.intensity = value;
 				for (auto&& light : world->lights)
@@ -418,13 +379,15 @@ struct program : public nanogui::Screen {
 
 		gui->addGroup("Samples");
 		gui->addVariable("steps:0", params.parameters[0].primary_samples);
-		gui->addVariable("in-scattering:0", params.parameters[0].secondary_samples);
-		gui->addVariable("reflection:0", params.parameters[0].in_scattering_samples);
+		gui->addVariable("scattering:0", params.parameters[0].secondary_samples);
+		gui->addVariable("irradiance:0", params.parameters[0].irradiance_samples);
+
 		gui->addVariable("steps:1", params.parameters[1].primary_samples);
-		gui->addVariable("in-scattering:1", params.parameters[1].secondary_samples);
-		gui->addVariable("reflection:1", params.parameters[1].in_scattering_samples);
+		gui->addVariable("scattering:1", params.parameters[1].secondary_samples);
+		gui->addVariable("irradiance:1", params.parameters[1].irradiance_samples);
+
 		gui->addVariable("steps:2", params.parameters[2].primary_samples);
-		gui->addVariable("in-scattering:2", params.parameters[2].secondary_samples);
+		gui->addVariable("scattering:2", params.parameters[2].secondary_samples);
 
 		FormHelper* gui2 = new FormHelper(this);
 		nanogui::ref<Window> nanoguiWindow2 = gui2->addWindow(Eigen::Vector2i(10, 10), "Render Settings");
@@ -432,8 +395,7 @@ struct program : public nanogui::Screen {
 		gui2->addGroup("Light:0");
 		gui2->addVariable("x", params.emitter_locations[0].x);
 		gui2->addVariable("y", params.emitter_locations[0].y);
-		gui2->addVariable("z", params.emitter_locations[0].z); 
-
+		gui2->addVariable("z", params.emitter_locations[0].z);
 
 		FormHelper* gui3 = new FormHelper(this);
 		nanogui::ref<Window> nanoguiWindow3 = gui3->addWindow(Eigen::Vector2i(10, 10), "Light Settings");
@@ -442,13 +404,16 @@ struct program : public nanogui::Screen {
 		gui3->addVariable("surface:0", params.gather_surface);
 		gui3->addVariable("absorption:0", params.parameters[0].gather_absorption);
 		gui3->addVariable("scattering:0", params.parameters[0].gather_scattering);
+
 		gui3->addVariable("absorption:1", params.parameters[1].gather_absorption);
 		gui3->addVariable("scattering:1", params.parameters[1].gather_scattering);
+
 		gui3->addVariable("absorption:2", params.parameters[2].gather_absorption);
 		gui3->addVariable("scattering:2", params.parameters[2].gather_scattering);
-		 
+
 		gui3->addGroup("Commands");
 		gui3->addButton("Refresh", [&]() { redraw = true; });
+		gui3->addVariable("Auto Save", auto_save);
 		gui3->addButton("Save", [&]() { save_as_png(); });
 		gui3->addButton("Reset Params", [&]() { params = {}; gui3->refresh(); gui->refresh(); gui2->refresh(); });
 
@@ -459,7 +424,7 @@ struct program : public nanogui::Screen {
 		nanoguiWindow2->setPosition(Eigen::Vector2i(width - 10 - nanoguiWindow2->width(), 10));
 		nanoguiWindow3->setPosition(Eigen::Vector2i(width - 10 - nanoguiWindow3->width(), 10));
 
-		::screen = this;
+		::screen = this; // todo: hack around limitation
 
 		glfwSetCursorPosCallback(window,
 			[](GLFWwindow*, double x, double y) {
@@ -525,7 +490,6 @@ struct program : public nanogui::Screen {
 			glfwPollEvents();
 		}
 	}
-
 
 	void update(float time = 0) {
 		if (redraw) {

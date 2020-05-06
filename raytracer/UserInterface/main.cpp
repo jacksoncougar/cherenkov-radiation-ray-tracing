@@ -40,9 +40,9 @@ namespace std {
 } 
 
 namespace std {
-	std::string to_string(const LevelParameters& param) {
+	std::string to_string(const DepthRenderingParameters& param) {
 		std::ostringstream ss;
-		ss << param.gather_absorption << " " << param.gather_scattering << " " << param.in_scattering_samples << " "
+		ss << param.gather_absorption << " " << param.gather_scattering << " " << param.irradiance_samples << " "
 			<< param.primary_samples << " " << param.secondary_samples;
 		return ss.str();
 	}
@@ -68,9 +68,9 @@ int main(int argc, char* argv[]) {
 		("s,scattering", "", cxxopts::value<float>()->default_value(std::to_string(params.s)))
 		("i,intensity", "", cxxopts::value<float>()->default_value(std::to_string(params.intensity)))
 
-		("p0", "", cxxopts::value<LevelParameters>()->default_value(std::to_string(params.parameters[0])))
-		("p1", "", cxxopts::value<LevelParameters>()->default_value(std::to_string(params.parameters[1])))
-		("p2", "", cxxopts::value<LevelParameters>()->default_value(std::to_string(params.parameters[2])))
+		("p0", "", cxxopts::value<DepthRenderingParameters>()->default_value(std::to_string(params.parameters[0])))
+		("p1", "", cxxopts::value<DepthRenderingParameters>()->default_value(std::to_string(params.parameters[1])))
+		("p2", "", cxxopts::value<DepthRenderingParameters>()->default_value(std::to_string(params.parameters[2])))
 		;
 
 	auto result = options.parse(argc, argv);
@@ -88,9 +88,9 @@ int main(int argc, char* argv[]) {
 	params.s = result["scattering"].as<float>();
 	params.intensity = result["intensity"].as<float>();
 
-	params.parameters[0] = result["p0"].as<LevelParameters>();
-	params.parameters[1] = result["p1"].as<LevelParameters>();
-	params.parameters[2] = result["p2"].as<LevelParameters>();
+	params.parameters[0] = result["p0"].as<DepthRenderingParameters>();
+	params.parameters[1] = result["p1"].as<DepthRenderingParameters>();
+	params.parameters[2] = result["p2"].as<DepthRenderingParameters>();
 
 	program program(argv[1], argv[2]);
 
