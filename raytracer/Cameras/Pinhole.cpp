@@ -125,6 +125,13 @@ auto spiral_async = [&](int width, int height, auto function) {
 		}
 		x = x + dx;
 		y = y + dy;
+
+		if (tasks.size() >= 4) {
+			for (auto&& task : tasks) {
+				task.get();
+			}
+			tasks.clear();
+		}
 	}
 	for (auto&& task : tasks) {
 		task.get();

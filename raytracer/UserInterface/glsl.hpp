@@ -90,11 +90,6 @@ struct EventDelegate {
 
 };
 
-std::ostream& operator<<(std::ostream& out, const Point3D& point) {
-	return out << point.x << " " << point.y << " " << point.z;
-}
-
-
 nanogui::Screen* screen = nullptr;
 
 struct program* that;
@@ -102,6 +97,7 @@ struct program* that;
 struct program : public nanogui::Screen {
 
 	EventDelegate<int> onKeyPressEvent{};
+	EventDelegate<int> onFinished{};
 
 	GLFWwindow* window;
 	unsigned int texture;
@@ -246,14 +242,14 @@ struct program : public nanogui::Screen {
 		double oz = -bbox.z0 - dz;
 		//subject->translate(ox, 0.0f, oz);
 
-		camera_position = Point3D{ 33.6, 12.9, -13 };
+		camera_position = params.camera_position;
 		look_at_subject();
 	}
 
 	void look_at_subject() const {
 		debug_log.info(camera_position);
 		world->camera_ptr->set_eye(camera_position);
-		world->camera_ptr->set_lookat(-1.81, 3.318, -1.479);
+		world->camera_ptr->set_lookat(params.target);
 		world->camera_ptr->compute_uvw();
 	}
 
@@ -304,7 +300,7 @@ struct program : public nanogui::Screen {
 		}
 	}
 
-	program(const char* mesh_filename, const char* mesh2_filename, RayMarchingParameters params = {}) {
+	program(const char* mesh_filename, const char* mesh2_filename) {
 
 		that = this;
 
@@ -330,8 +326,7 @@ struct program : public nanogui::Screen {
 
 		initialize(window, false);
 
-		::params = params;
-		reload_render_params();
+		//reload_render_params();
 
 		reactor_grid = load_mesh_data(mesh_filename);
 		box_grid = load_mesh_data(mesh2_filename);
@@ -352,7 +347,7 @@ struct program : public nanogui::Screen {
 			world->add_light(directional);
 		}
 
-		//world->add_object(box.get());
+		world->add_object(box.get());
 
 		focus_subject();
 
@@ -363,7 +358,12 @@ struct program : public nanogui::Screen {
 
 		load_emissive_material();
 
-		renderThread = std::make_shared<RenderThread>(world);
+		onFinished += [&](auto status) {
+			save_as_png();
+			if (params.batch) exit(0);
+		};
+
+		renderThread = std::make_shared<RenderThread>(world, [&]() {onFinished(0); });
 
 		// gui
 
@@ -378,7 +378,7 @@ struct program : public nanogui::Screen {
 		gui->addVariable("s", params.s);
 		gui->addVariable("extinction", params.extinction);
 		auto intensity_widget = gui->addVariable("intensity", params.intensity);
-		intensity_widget->setCallback([&](float value)
+		intensity_widget->setCallback([&](float value) 
 			{
 				params.intensity = value;
 				for (auto&& light : world->lights)
@@ -389,7 +389,21 @@ struct program : public nanogui::Screen {
 					}
 				}
 			});
-		gui->addVariable("falloff", params.falloff);
+
+		auto falloff_widget = gui->addVariable("falloff", params.falloff);
+		falloff_widget->setCallback([&](float value)
+			{
+				params.falloff = value;
+				for (auto&& light : world->lights)
+				{
+					auto emitter = dynamic_cast<ParticleEmitter*>(light);
+					if (emitter) {
+						emitter->set_falloff(params.falloff);
+					}
+				}
+			});
+
+		glow_color = nanogui::Color{ params.glow_colour.r, params.glow_colour.g, params.glow_colour.b, 1.0f };
 		auto colour_widget = gui->addVariable("colour", glow_color);
 		colour_widget->setFinalCallback([&](auto changed) {
 			params.glow_colour = RGBColor{ glow_color.x(), glow_color.y(), glow_color.z() };
@@ -418,12 +432,8 @@ struct program : public nanogui::Screen {
 		gui2->addGroup("Light:0");
 		gui2->addVariable("x", params.emitter_locations[0].x);
 		gui2->addVariable("y", params.emitter_locations[0].y);
-		gui2->addVariable("z", params.emitter_locations[0].z);
+		gui2->addVariable("z", params.emitter_locations[0].z); 
 
-		gui2->addGroup("Light:1");
-		gui2->addVariable("x", params.emitter_locations[1].x);
-		gui2->addVariable("y", params.emitter_locations[1].y);
-		gui2->addVariable("z", params.emitter_locations[1].z);
 
 		FormHelper* gui3 = new FormHelper(this);
 		nanogui::ref<Window> nanoguiWindow3 = gui3->addWindow(Eigen::Vector2i(10, 10), "Light Settings");
@@ -436,7 +446,7 @@ struct program : public nanogui::Screen {
 		gui3->addVariable("scattering:1", params.parameters[1].gather_scattering);
 		gui3->addVariable("absorption:2", params.parameters[2].gather_absorption);
 		gui3->addVariable("scattering:2", params.parameters[2].gather_scattering);
-
+		 
 		gui3->addGroup("Commands");
 		gui3->addButton("Refresh", [&]() { redraw = true; });
 		gui3->addButton("Save", [&]() { save_as_png(); });
@@ -447,7 +457,7 @@ struct program : public nanogui::Screen {
 
 		nanoguiWindow->setPosition(Eigen::Vector2i(10, 10));
 		nanoguiWindow2->setPosition(Eigen::Vector2i(width - 10 - nanoguiWindow2->width(), 10));
-		nanoguiWindow3->setPosition(Eigen::Vector2i(width - 10 - nanoguiWindow2->width(), 10));
+		nanoguiWindow3->setPosition(Eigen::Vector2i(width - 10 - nanoguiWindow3->width(), 10));
 
 		::screen = this;
 
@@ -525,34 +535,35 @@ struct program : public nanogui::Screen {
 			world->vp.vres = height;
 
 			world->camera_ptr->CANCEL_THREAD.clear();
-			renderThread->join(); // ignore current solution...
+			if (renderThread)renderThread->join(); // ignore current solution...
 			world->camera_ptr->CANCEL_THREAD.test_and_set();
 
-			renderThread = std::make_shared<RenderThread>(world);
+			renderThread = std::make_shared<RenderThread>(world, [&]() {onFinished(0); });
 			redraw = false;
 		}
 	}
 
 	void render() {
-		// copy our render pixels to the framebuffer (e.g. screen).
-		if (!renderThread) return;
-		auto pixels = renderThread->pixel_data(false);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexImage2D(
-			GL_TEXTURE_2D,
-			0,
-			GL_RGB8,
-			renderThread->width,
-			renderThread->height,
-			0,
-			GL_RGB,
-			GL_UNSIGNED_BYTE,
-			pixels.data());
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
-		glReadBuffer(GL_COLOR_ATTACHMENT0);
-		glBlitFramebuffer(0, 0, width, height, 0, height, width, 0, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+		if (renderThread) {
+			auto pixels = renderThread->pixel_data(false);
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				GL_RGB8,
+				renderThread->width,
+				renderThread->height,
+				0,
+				GL_RGB,
+				GL_UNSIGNED_BYTE,
+				pixels.data());
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+			glReadBuffer(GL_COLOR_ATTACHMENT0);
+			glBlitFramebuffer(0, 0, width, height, 0, height, width, 0, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+		}
 
 		if (show_params) {
 			drawContents();

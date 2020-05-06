@@ -28,7 +28,7 @@ public:
 	RGBColor Ls(Point3D x, Vector3D w, int depth, World* world)const;
 	RGBColor Ls2(Point3D x, Vector3D w, int depth, World* world)const;
 	RGBColor Sample(Point3D x, Point3D y, float t, Vector3D w, World* world, int depth)const;
-	RGBColor monte_carlo(Point3D x, Vector3D w, int depth, World* world, float max_t = 2280.0f)const;
+	RGBColor monte_carlo(Point3D x, Vector3D w, int depth, World* world, float max_t = 100.0f)const;
 };
 
 struct LevelParameters
@@ -43,16 +43,20 @@ struct LevelParameters
 
 struct RayMarchingParameters
 {
+	bool batch = false;
+	Point3D camera_position{};
+	Point3D target{};
+
 	bool gather_surface = true;
-	std::array<Point3D, 8> emitter_locations{
+	std::array<Point3D,1> emitter_locations{
 		Point3D{ 0, 0.2, 0 },
-		Point3D{-1.6, 0.2, 0},
-		Point3D{-3.2, 0.2, 0},
-		Point3D{ 0, 0.2, -1.74446 },
-		Point3D{-3.2, 0.2,-1.74446},
-		Point3D{ 0, 0.2, -3.47329 },
-		Point3D{-1.6, 0.2, -3.47329},
-		Point3D{-3.2, 0.2,-3.47329}
+		//Point3D{-1.6, 0.2, 0},
+		//Point3D{-3.2, 0.2, 0},
+		//Point3D{ 0, 0.2, -1.74446 },
+		//Point3D{-3.2, 0.2,-1.74446},
+		//Point3D{ 0, 0.2, -3.47329 },
+		//Point3D{-1.6, 0.2, -3.47329},
+		//Point3D{-3.2, 0.2,-3.47329}
 	};
 	RGBColor glow_colour = RGBColor{ 2 / 255., 203 / 255., 213 / 255. };
 	float intensity = 1;
@@ -70,6 +74,41 @@ extern RayMarchingParameters params;
 std::ostream& operator<<(std::ostream& out, const RGBColor& colour);
 
 std::ostream& operator<<(std::ostream& out, const RayMarchingParameters& params);
+
+
+inline std::istream& operator>>(std::istream& in, Point3D& point) {
+	in >> point.x >> point.y >> point.z;
+	return in;
+}
+
+inline std::istream& operator>>(std::istream& in, RGBColor& point) {
+	in >> point.r >> point.g >> point.b;
+	return in;
+}
+
+inline std::istream& operator>>(std::istream& in, LevelParameters& param) {
+	in >> param.gather_absorption >> param.gather_scattering
+		>> param.in_scattering_samples >> param.primary_samples >> param.secondary_samples;
+	return in;
+}
+
+
+inline std::ostream& operator<<(std::ostream& out, const Point3D& point) {
+	out << point.x << " " << point.y << " " << point.z;
+	return out;
+
+}
+
+inline std::ostream& operator<<(std::ostream& out, const RGBColor& color) {
+	out << color.r << " " << color.g << " " << color.b;
+	return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, const LevelParameters& param) {
+	out << param.gather_absorption << " " << param.gather_scattering << " " << param.in_scattering_samples << " "
+		<< param.primary_samples << " " << param.secondary_samples;
+	return out;
+}
 
 
 #endif //WXRAYTRACER_MARCHINGRAYTRACER_HPP

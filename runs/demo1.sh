@@ -1,0 +1,1 @@
+./tracer.exe assets/ply/reactor2.ply assets/ply/chamber.ply -a 0.01 -s 0.1 -e 0.02 -i 100 -f 1 --gather-surface=1 --camera-position="8 31 -3" --target="0 0 0" --colour="0.007843 0.796078 0.835294" --p0="1 1 0 10 0" --p1="1 1 0 0 0" --p2="1 1 0 0 0"

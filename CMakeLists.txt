@@ -23,15 +23,12 @@ include_directories(lib/nanogui/include)
 include_directories(${NANOGUI_EXTRA_INCS})
 add_definitions(${NANOGUI_EXTRA_DEFS})
 
+add_library(opt INTERFACE)
+target_include_directories(opt INTERFACE 3rd-party/cxxopts/include)
+
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE 3rd-party/stb)
 
-include(ExternalProject)
-ExternalProject_Add(cxxopts_external
-GIT_REPOSITORY https://github.com/jarro2783/cxxopts.git 
-PREFIX lib
-STEP_TARGETS   build
-)
 
 add_subdirectory(raytracer)
  

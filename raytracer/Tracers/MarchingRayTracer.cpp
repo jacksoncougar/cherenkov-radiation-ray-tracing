@@ -16,11 +16,6 @@ RGBColor MarchingRayTracer::trace_ray(const Ray& ray) const {
 	return Tracer::trace_ray(ray);
 }
 
-std::ostream& operator<<(std::ostream& out, const RGBColor& colour) {
-	auto&& [r, g, b] = colour;
-	out << "(" << r << ", " << g << ", " << b << ")";
-	return out;
-}
 
 std::ostream& operator<<(std::ostream& out, const RayMarchingParameters& params) {
 
@@ -30,17 +25,38 @@ std::ostream& operator<<(std::ostream& out, const RayMarchingParameters& params)
 	out << "glow_colour=" << params.glow_colour << '\n';
 	out << "extinction=" << params.extinction << '\n';
 	out << "intensity=" << params.intensity << '\n';
+
 	out << "# Samples\n";
-	out << "primary:0=" << params.parameters[0].primary_samples << '\n';
-	out << "secondary:0=" << params.parameters[0].secondary_samples << '\n';
-	out << "primary:1=" << params.parameters[1].primary_samples << '\n';
-	out << "secondary:1=" << params.parameters[1].secondary_samples << '\n';
+	out << "steps:0=" << params.parameters[0].primary_samples << '\n';
+	out << "in-scattering:0=" << params.parameters[0].secondary_samples << '\n';
+	out << "irradiance:0=" << params.parameters[0].in_scattering_samples << '\n';
+	out << "steps:1=" << params.parameters[1].primary_samples << '\n';
+	out << "in-scattering:1=" << params.parameters[1].secondary_samples << '\n';
+	out << "irradiance:1=" << params.parameters[0].in_scattering_samples << '\n';
+
 	out << "# Gathers\n";
 	out << "surface:0=" << params.gather_surface << '\n';
 	out << "absorption:0=" << params.parameters[0].gather_absorption << '\n';
 	out << "scattering:0=" << params.parameters[0].gather_scattering << '\n';
+	out << "irradiance:0=" << params.parameters[0].in_scattering_samples << '\n';
 	out << "absorption:1=" << params.parameters[1].gather_absorption << '\n';
 	out << "scattering:1=" << params.parameters[1].gather_scattering << '\n';
+	out << "irradiance:0=" << params.parameters[0].in_scattering_samples << '\n';
+
+	out << "# Args\n";
+	out << "-a " << params.a << " ";
+	out << "-s " << params.s << " ";
+	out << "-e " << params.extinction << " ";
+	out << "-i " << params.intensity << " "; 
+	out << "-f " << params.falloff << " ";
+	out << "--gather-surface=" << params.gather_surface << " ";
+	out << "--camera-position=\"" << params.camera_position << "\" ";
+	out << "--target=\"" << params.target << "\" ";
+	out << "--colour=\"" << params.glow_colour << "\" ";
+	out << "--p0=\"" << params.parameters[0] << "\" ";
+	out << "--p1=\"" << params.parameters[1] << "\" ";
+	out << "--p2=\"" << params.parameters[2] << "\" ";
+
 	return out;
 }
 
@@ -114,7 +130,7 @@ auto S2_sample_raw = [&]() {
 };
 
 auto S2_sample = [&]() {
-	thread_local std::array<Vector3D, 10000> samples;
+	thread_local std::array<Vector3D, 10000> samples; 
 	thread_local int i = 0;
 	thread_local int fill = 0;
 
@@ -130,7 +146,7 @@ auto S2_sample = [&]() {
 auto Le = [&](Point3D x, Vector3D w, World* world) -> RGBColor {
 
 	RGBColor result{ 0 };
-	ShadeRec sr(*world);
+	ShadeRec sr(*world); 
 	sr.hit_point = x;
 
 	for (auto&& emission_source : world->lights) {
@@ -146,9 +162,9 @@ auto tau = [&](float t) {
 
 //transmittance
 auto T_r = [&](float t) {
-	return params.falloff * std::exp(-tau(t));
+	return  std::exp(-tau(t));
 };
-
+ 
 auto p = [&](float t) {
 	auto result = zeroth * std::exp(-zeroth * t);
 	return result;
@@ -187,11 +203,14 @@ RGBColor MarchingRayTracer::Ls2(Point3D x, Vector3D n, int depth, World * world)
 
 	RGBColor result{ 0 };
 
+	auto gs = getParameters(depth).gather_scattering;
+	if (!gs) return result;
+
 	auto number_of_samples = getParameters(depth).in_scattering_samples;
 	for (int i = 0; i < number_of_samples; ++i)
 	{
 		Vector3D w_bar = S2_sample();
-		result += f_p(n, w_bar) * std::abs(n dot w_bar) * trace_ray(Ray{ x, w_bar }, depth + 1);
+		result += f_p(n, w_bar) * std::max(0.0, n dot w_bar) * trace_ray(Ray{ x, w_bar }, depth + 1);
 
 	}
 	return result / std::max(1, number_of_samples);
@@ -204,7 +223,7 @@ RGBColor MarchingRayTracer::Sample(Point3D x, Point3D y, float t, Vector3D w, Wo
 	auto gs = getParameters(depth).gather_scattering;
 	return T_r(t) / p(t) * (
 		_if(ga, mu_a(t) * Le(y, w, world), RGBColor{ 0 }) +
-		_if(gs, mu_s(t) * Ls(y, w, depth + 1, world), RGBColor{ 0 })
+		_if(gs, mu_s(t) * Ls(y, w, depth, world), RGBColor{ 0 })
 		);
 };
 
@@ -253,22 +272,22 @@ RGBColor MarchingRayTracer::trace_ray(const Ray ray, const int depth) const {
 	auto tone_map3 = [&](const RGBColor& colour) -> RGBColor {
 		return colour / (colour + RGBColor(1));
 	};
-
+	 
 	auto tone_map = [](const RGBColor& colour) -> RGBColor {
-		auto [r, g, b] = colour;
+		auto [r, g, b] = colour; 
 		float L = 0.2126 * r + 0.7152 * g + 0.0722 * b;
 		auto nl = L / (L + 1);
-		auto scale = nl / L;
+		auto scale = nl / L; 
 		r *= scale;
 		g *= scale;
-		b *= scale;
+		b *= scale; 
 
 		return { r,g,b };
 	};
 
 	if (sr.hit_an_object) {
 
-		auto surface_color = T_r(sr.t) / p(sr.t) * sr.material_ptr->shade(sr);
+		auto surface_color = params.gather_surface && sr.material_ptr ? T_r(sr.t) * sr.material_ptr->shade(sr) : 0;
 		auto irradiance = T_r(sr.t) / p(sr.t) * Ls2(sr.hit_point, sr.normal, depth, world_ptr);
 		auto transmission = monte_carlo(x, w, depth, world_ptr, sr.t);
 		auto radiance = surface_color + irradiance + transmission;
@@ -280,12 +299,12 @@ RGBColor MarchingRayTracer::trace_ray(const Ray ray, const int depth) const {
 	}
 	else {
 
-		auto transmission = monte_carlo(x, w, depth, world_ptr);
+		auto transmission = monte_carlo(x, w, depth, world_ptr, 140.0f);
 		if (depth == 0)
 			return  tone_map3(transmission);
 		else
 			return transmission;
-
+		 
 	}
 }
 

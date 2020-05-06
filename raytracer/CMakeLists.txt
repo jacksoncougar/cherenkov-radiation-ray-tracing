@@ -65,7 +65,7 @@ target_link_libraries(tracer
         PRIVATE assimp::assimp
         PRIVATE stb 
         PRIVATE nanogui
-        
+        PRIVATE opt
         PRIVATE "${legacy}"
         PRIVATE glad
         PRIVATE glfw
@@ -94,3 +94,8 @@ add_custom_command(TARGET tracer POST_BUILD
         COMMENT "Copying resources..."
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/../assets $<TARGET_FILE_DIR:tracer>/assets)
+
+add_custom_command(TARGET tracer POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/../runs"
+        $<TARGET_FILE_DIR:tracer>)

@@ -6,6 +6,8 @@
 #include "Ray.h"
 #include "Light.h"
 
+#include <cmath>
+
 class ShadeRec;
 
 
@@ -15,6 +17,7 @@ public:
 	Vector3D position;
 	RGBColor color;
 	float intensity = 1.0f;
+	float falloff = 2.0f;
 
 	ParticleEmitter(Vector3D position, RGBColor color) : position(position), color(color) {}
 
@@ -31,10 +34,14 @@ public:
 		this->intensity = intensity;
 	}
 
+	void set_falloff(float falloff) {
+		this->falloff = falloff;
+	}
+
 	virtual RGBColor L(ShadeRec& sr) {
 		auto w_bar = Vector3D(sr.hit_point - position).hat();
 		auto distance_squared = Vector3D(sr.hit_point - position).len_squared();
-		RGBColor result = intensity * color / distance_squared;
+		RGBColor result = intensity * color / std::pow(distance_squared,falloff);
 		return result;
 	}
 };
