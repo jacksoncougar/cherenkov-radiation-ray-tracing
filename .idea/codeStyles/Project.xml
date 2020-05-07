@@ -21,6 +21,9 @@
         <pair source="c" header="h" fileNamingConvention="NONE" />
       </extensions>
     </Objective-C-extensions>
+    <clangFormatSettings>
+      <option name="ENABLED" value="true" />
+    </clangFormatSettings>
     <codeStyleSettings language="ObjectiveC">
       <option name="KEEP_LINE_BREAKS" value="false" />
       <option name="BLANK_LINES_AROUND_METHOD_IN_INTERFACE" value="0" />
