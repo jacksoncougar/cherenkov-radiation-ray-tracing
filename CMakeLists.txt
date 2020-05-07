@@ -18,9 +18,8 @@ target_include_directories(glad PUBLIC 3rd-party/glad/include)
 target_link_libraries(glad ${CMAKE_DL_LIBS})
 target_link_libraries(glad ${legacy})
 
-find_package(glfw3 REQUIRED)
-find_package(OpenGL REQUIRED)    
-find_package(assimp REQUIRED)
+
+
 
 set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
 set(NANOGUI_BUILD_PYTHON  OFF CACHE BOOL " " FORCE)

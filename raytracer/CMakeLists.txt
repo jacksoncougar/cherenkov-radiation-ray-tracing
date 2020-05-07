@@ -3,7 +3,9 @@ project(tracer LANGUAGES C CXX)
 
 message(STATUS ${MSVC_TOOLSET_VERSION})
 
-
+find_package(glfw3 REQUIRED)
+find_package(OpenGL REQUIRED)    
+find_package(assimp REQUIRED)
 
 set(SRC World/ViewPlane.cpp
         World/World.cpp
