@@ -1,1 +1,5 @@
 
+[submodule "nanogui"]
+	path = nanogui
+	url = https://github.com/wjakob/nanogui.git
+	branch = master

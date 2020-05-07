@@ -18,10 +18,14 @@ target_include_directories(glad PUBLIC 3rd-party/glad/include)
 target_link_libraries(glad ${CMAKE_DL_LIBS})
 target_link_libraries(glad ${legacy})
 
-add_subdirectory(lib/nanogui)
-include_directories(lib/nanogui/include)
-include_directories(${NANOGUI_EXTRA_INCS})
-add_definitions(${NANOGUI_EXTRA_DEFS})
+find_package(glfw3 REQUIRED)
+find_package(OpenGL REQUIRED)    
+find_package(assimp REQUIRED)
+
+set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
+set(NANOGUI_BUILD_PYTHON  OFF CACHE BOOL " " FORCE)
+set(NANOGUI_INSTALL       OFF CACHE BOOL " " FORCE)
+add_subdirectory(nanogui)
 
 add_library(opt INTERFACE)
 target_include_directories(opt INTERFACE 3rd-party/cxxopts/include)
