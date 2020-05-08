@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <conio.h>
 #include <glad/glad.h>
+
 #include "GLFW/glfw3.h"
 
 #include <iostream>
@@ -32,7 +33,7 @@
 #include <nanogui/screen.h>
 #include <nanogui/window.h>
 #include <nanogui/layout.h>
-#include <nanogui/label.h>
+#include <nanogui/label.h> 
 #include <nanogui/checkbox.h>
 #include <nanogui/button.h>
 #include <nanogui/toolbutton.h>
@@ -389,13 +390,6 @@ struct program : public nanogui::Screen {
 		gui->addVariable("steps:2", params.parameters[2].primary_samples);
 		gui->addVariable("scattering:2", params.parameters[2].secondary_samples);
 
-		FormHelper* gui2 = new FormHelper(this);
-		nanogui::ref<Window> nanoguiWindow2 = gui2->addWindow(Eigen::Vector2i(10, 10), "Render Settings");
-
-		gui2->addGroup("Light:0");
-		gui2->addVariable("x", params.emitter_locations[0].x);
-		gui2->addVariable("y", params.emitter_locations[0].y);
-		gui2->addVariable("z", params.emitter_locations[0].z);
 
 		FormHelper* gui3 = new FormHelper(this);
 		nanogui::ref<Window> nanoguiWindow3 = gui3->addWindow(Eigen::Vector2i(10, 10), "Light Settings");
@@ -415,13 +409,12 @@ struct program : public nanogui::Screen {
 		gui3->addButton("Refresh", [&]() { redraw = true; });
 		gui3->addVariable("Auto Save", auto_save);
 		gui3->addButton("Save", [&]() { save_as_png(); });
-		gui3->addButton("Reset Params", [&]() { params = {}; gui3->refresh(); gui->refresh(); gui2->refresh(); });
+		gui3->addButton("Reset Params", [&]() { params = {}; gui3->refresh(); gui->refresh(); });
 
 		this->setVisible(true);
 		this->performLayout();
 
 		nanoguiWindow->setPosition(Eigen::Vector2i(10, 10));
-		nanoguiWindow2->setPosition(Eigen::Vector2i(width - 10 - nanoguiWindow2->width(), 10));
 		nanoguiWindow3->setPosition(Eigen::Vector2i(width - 10 - nanoguiWindow3->width(), 10));
 
 		::screen = this; // todo: hack around limitation

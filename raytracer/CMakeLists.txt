@@ -55,16 +55,19 @@ set(SRC World/ViewPlane.cpp
         UserInterface/ui.cpp Tracers/MarchingRayTracer.cpp Tracers/MarchingRayTracer.hpp
         Materials/Emissive.cpp
         Materials/Emissive.h
-     "Lights/PointLight.h" "Lights/PointLight.cpp")
+        Lights/PointLight.h 
+        Lights/PointLight.cpp)
 
 add_executable(tracer ${SRC})
-set_property(TARGET tracer PROPERTY CXX_STANDARD 17)
 
+set_property(TARGET tracer PROPERTY CXX_STANDARD 17)
 find_library(legacy legacy_stdio_definitions )
+
 target_link_libraries(tracer
         PRIVATE assimp::assimp
         PRIVATE stb 
         PRIVATE nanogui
+        ${NANOGUI_EXTRA_LIBS}
         PRIVATE opt
         PRIVATE "${legacy}"
         PRIVATE glad
@@ -75,6 +78,7 @@ target_include_directories(tracer
         PUBLIC BRDFs
         PUBLIC build
         PUBLIC Cameras
+        PUBLIC ${NANOGUI_EXTRA_INCS}
         PUBLIC GeometricObjects
         PUBLIC GeometricObjects/Triangles
         PUBLIC Lights
@@ -99,3 +103,9 @@ add_custom_command(TARGET tracer POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${PROJECT_SOURCE_DIR}/../runs"
         $<TARGET_FILE_DIR:tracer>)
+    
+# copy assimp dll to exe directory
+add_custom_command(TARGET tracer POST_BUILD        
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+        $<TARGET_FILE:assimp>  
+        $<TARGET_FILE_DIR:tracer>)                
