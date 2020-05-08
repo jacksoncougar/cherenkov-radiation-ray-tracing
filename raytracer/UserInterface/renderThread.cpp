@@ -2,8 +2,8 @@
 // Created by root on 9/3/20.
 //
 
+#include "renderThread.h"
 #include <World.h>
-#include "ui.h"
 
 void RenderThread::setPixel(int x, int y, int red, int green, int blue) {
     auto lock = std::lock_guard(pixel_mutex);

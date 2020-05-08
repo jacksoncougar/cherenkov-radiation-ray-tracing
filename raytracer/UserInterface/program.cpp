@@ -2,23 +2,23 @@
 // Created by root on 10/3/20.
 //
 
-#include <stdio.h>
-#include <conio.h>
-#include "stb_image_write.h"
-#include "ui.h"
-#include <initializer_list>
-#include <fstream>
-#include <sstream>
-#include <thread>
-#include <memory>
-#include <World.h>
-#include <iostream>
-#include <array>
-#include "glm/gtx/transform.hpp"
-#include "glm/glm.hpp"
-#include "GLFW/glfw3.h"
-#include <glad/glad.h>
 #include "program.hpp"
+#include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
+#include "glm/gtx/transform.hpp"
+#include "renderThread.h"
+#include "stb_image_write.h"
+#include <World.h>
+#include <array>
+#include <conio.h>
+#include <fstream>
+#include <glad/glad.h>
+#include <initializer_list>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <stdio.h>
+#include <thread>
 
 struct shader_base {
     unsigned int id;

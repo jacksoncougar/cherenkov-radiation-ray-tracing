@@ -53,7 +53,12 @@ set(SRC World/ViewPlane.cpp
         Utilities/ShadeRec.cpp
         Utilities/Vector3D.cpp
         UserInterface/main.cpp
-        UserInterface/ui.cpp Tracers/MarchingRayTracer.cpp Tracers/MarchingRayTracer.hpp
+        UserInterface/program.hpp
+        UserInterface/program.cpp
+        UserInterface/renderThread.cpp
+        UserInterface/renderThread.h
+        Tracers/MarchingRayTracer.cpp
+        Tracers/MarchingRayTracer.hpp
         Materials/Emissive.cpp
         Materials/Emissive.h
         Lights/PointLight.h 

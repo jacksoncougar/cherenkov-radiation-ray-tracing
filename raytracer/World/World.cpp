@@ -37,8 +37,7 @@
 // build functions
 
 #include "BunndyWorld.cpp"
-#include "ui.h"
-
+#include "renderThread.h"
 
 // -------------------------------------------------------------------- default constructor
 

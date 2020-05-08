@@ -23,7 +23,7 @@
 #include <fstream>
 #include <Matte.h>
 
-#include "ui.h"
+#include "renderThread.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"

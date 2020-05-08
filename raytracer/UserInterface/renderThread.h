@@ -1,8 +1,8 @@
 //
 // Created by root on 9/3/20.
 //
-#ifndef WXRAYTRACER_UI_H
-#define WXRAYTRACER_UI_H
+#ifndef WXRAYTRACER_RENDERTHREAD_H
+#define WXRAYTRACER_RENDERTHREAD_H
 
 #include "World.h"
 #include <thread>
@@ -48,4 +48,4 @@ public:
 	std::vector<unsigned char> pixel_data(bool flip_y);
 };
 
-#endif //WXRAYTRACER_UI_H
+#endif // WXRAYTRACER_RENDERTHREAD_H

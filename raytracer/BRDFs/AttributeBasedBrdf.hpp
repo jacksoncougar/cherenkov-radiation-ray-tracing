@@ -12,6 +12,7 @@
 #include "ImageTexture.hpp"
 #include "RGBColor.h"
 #include "ShadeRec.h"
+#include <cmath>
 
 enum ViewDependantFunction {
     NearSilhouette, Highlights, Depth
