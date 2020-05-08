@@ -6,7 +6,6 @@
 #define WXRAYTRACER_GLSL_HPP
 
 #include <stdio.h>
-#include <conio.h>
 #include <glad/glad.h>
 
 #include "GLFW/glfw3.h"
