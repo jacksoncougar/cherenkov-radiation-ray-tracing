@@ -1,7 +1,6 @@
 //
 // Created by root on 9/3/20.
 //
-#include <conio.h>
 #include <stdio.h>
 
 #include <glad/glad.h>
@@ -48,8 +47,9 @@ std::string to_string(const DepthRenderingParameters &param) {
 } // namespace std
 
 int main(int argc, char *argv[]) {
-  cxxopts::Options options("Tracer [EMISSIVE_MESH_FILENAME] [CHAMBER_MESH_FILENAME]",
-                           "C++ Volumetric Cherenkov Radiation Ray Marching");
+  cxxopts::Options options(
+      "Tracer [EMISSIVE_MESH_FILENAME] [CHAMBER_MESH_FILENAME]",
+      "C++ Volumetric Cherenkov Radiation Ray Marching");
 
   // reload_render_params();
 

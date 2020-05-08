@@ -61,6 +61,10 @@ Building from the command line:
                                  0 0)
       -h, --help                 Print usage
 
+## Example
+
+    tracer assets/ply/reactor2.ply assets/ply/chamber.ply
+
 ## Controls
 
 <dt>ESC<dt> <dd>Hides the GUI elements </dd>
