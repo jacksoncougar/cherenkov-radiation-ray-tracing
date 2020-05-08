@@ -34,6 +34,11 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 include_directories(${NANOGUI_EXTRA_INCS})
 include_directories(nanogui/include)
 
+# forward glfw from nanogui
+set(GLFW3_FOUND ON)
+set(GLFW3_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui/ext/glfw/include)
+set(GLFW3_LIBRARIES $<TARGET_FILE:nanogui>)
+
 # assimp
 set(ASSIMP_NO_EXPORT ON CACHE BOOL " " FORCE)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL " " FORCE)
