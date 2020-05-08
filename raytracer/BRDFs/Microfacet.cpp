@@ -33,5 +33,5 @@ double GlossySpecularMicrofacet<DistributionFunc::TrowbridgeReitz>::D(
 	const float a_sq = pow(r, 4.0f);
 	const float ndotwh_sq = pow(n * wh, 2.0f);
 
-	return a_sq / (PI * pow(ndotwh_sq * (a_sq - 1.0f) + 1.0f, 2.0f));
+	return a_sq * invPI / pow((ndotwh_sq * (a_sq - 1.0f)) + 1.0f, 2.0f);
 }

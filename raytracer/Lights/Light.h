@@ -27,7 +27,7 @@ class Light {
 		~Light(void);
 						
 		virtual Vector3D								
-		get_direction(ShadeRec& sr) = 0;				
+		get_direction(ShadeRec& sr) = 0;		
 																
 		virtual RGBColor														
 		L(ShadeRec& sr);								

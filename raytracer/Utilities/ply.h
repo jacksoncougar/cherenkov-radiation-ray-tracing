@@ -168,7 +168,7 @@ extern int equal_strings(char *, char *);
 
 // strdup.c --string duplicate function written by Rickard E. Faith
 
-extern char* strdup(const char* s);
+//extern char* strdup(const char* s);
 
 
 #ifdef __cplusplus

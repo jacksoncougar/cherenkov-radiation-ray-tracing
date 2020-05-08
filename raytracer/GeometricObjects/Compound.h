@@ -23,28 +23,23 @@ class Compound: public GeometricObject {
 	
 		Compound(const Compound& c); 							
 
-		~Compound (void);   									
+		~Compound (void);
 
-		Compound& 												
-		operator= (const Compound& c);	
-		
-		virtual void 
-		set_material(Material* material_ptr);
-		
-		virtual void 											
-		add_object(GeometricObject* object_ptr);  
-		
-		int
-		get_num_objects(void);						
+    Compound &operator=(const Compound &c);
 
-		virtual bool 															 
-		hit(const Ray& ray, double& tmin, ShadeRec& s) const;
-			
-	protected:		
-		
-		std::vector<GeometricObject*> objects;
-		
-	private:
+    virtual void set_material(Material *material_ptr);
+
+    virtual void add_object(GeometricObject *object_ptr);
+
+    size_t get_num_objects(void);
+
+    virtual bool hit(const Ray &ray, double &tmin, ShadeRec &s) const;
+
+protected:
+
+    std::vector<GeometricObject *> objects;
+
+private:
 	
 		void 													
 		delete_objects(void);								
@@ -57,9 +52,8 @@ class Compound: public GeometricObject {
 
 // ------------------------------------------------------------------------------- get_num_objects
 
-inline int
-Compound::get_num_objects(void) {
-	return (objects.size());
+inline size_t Compound::get_num_objects(void) {
+    return (objects.size());
 }
 
 #endif

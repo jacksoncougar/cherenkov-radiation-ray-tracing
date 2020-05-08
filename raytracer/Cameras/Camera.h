@@ -6,14 +6,17 @@
 
 #include "Point3D.h"
 #include "Vector3D.h"
+#include <atomic>
 
 class World;  // can't #include "World" here because World contains a camera pointer
 
 //--------------------------------------------------------------------- class Camera
 
+
 class Camera {
 	public:
-	
+
+		std::atomic_flag CANCEL_THREAD = ATOMIC_FLAG_INIT;
 		Camera();   							// default constructor
 
 		Camera(const Camera& camera);			// copy constructor
@@ -45,27 +48,24 @@ class Camera {
 		void
 		set_up_vector(const float x, const float y, const float z);
 
-		void
-		set_roll(const float ra);
-		
-		void
-		set_exposure_time(const float exposure);
-		
-		void									
-		compute_uvw(void);
-		
-		
-	protected:		
-	
-		Point3D			eye;				// eye point
-		Point3D			lookat; 			// lookat point
-		float			ra;					// roll angle
-		Vector3D		u, v, w;			// orthonormal basis vectors
-		Vector3D		up;					// up vector
-		float			exposure_time;
-		
-		Camera& 							// assignment operator
-		operator= (const Camera& camera);
+    void set_roll(const float ra);
+
+    void set_exposure_time(const float exposure);
+
+    void compute_uvw(void);
+
+
+public:
+
+    Point3D eye;                // eye point
+    Point3D lookat;            // lookat point
+    float ra;                    // roll angle
+    Vector3D u, v, w;            // orthonormal basis vectors
+    Vector3D up;                    // up vector
+    float exposure_time;
+
+    Camera &                            // assignment operator
+    operator=(const Camera &camera);
 };
 
 

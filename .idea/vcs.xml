@@ -2,5 +2,11 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/nanogui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/nanogui/ext/eigen" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/nanogui/ext/glfw" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/nanogui/ext/nanovg" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/nanogui/ext/pybind11" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/nanogui/ext/pybind11/tools/clang" vcs="Git" />
   </component>
 </project>

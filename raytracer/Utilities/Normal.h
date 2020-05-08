@@ -154,6 +154,11 @@ operator* (const Vector3D& v, const Normal& n) {
 	return (v.x * n.x + v.y * n.y + v.z * n.z);     
 }
 
+inline double
+operator* (const Normal& v, const Normal& n) {
+    return (v.x * n.x + v.y * n.y + v.z * n.z);
+}
+
 
 
 // non-inlined non-member function

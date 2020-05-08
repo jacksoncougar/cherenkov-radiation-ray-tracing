@@ -1,0 +1,8 @@
+
+[submodule "nanogui"]
+	path = nanogui
+	url = https://github.com/wjakob/nanogui.git
+	branch = master
+[submodule "assimp"]
+	path = assimp
+	url = https://github.com/assimp/assimp.git

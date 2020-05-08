@@ -24,53 +24,43 @@
 #include "GeometricObject.h"
 #include "Mesh.h"
 
-class MeshTriangle: public GeometricObject {	
-	public:
+class MeshTriangle : public GeometricObject {
+public:
 
-		Mesh* 		mesh_ptr;					// stores all the data
-		int			index0, index1, index2;  	// indices into the vertices array in the mesh
-		Normal		normal;					
-		float		area;						// required for translucency
-	
-	public:
-		
-		MeshTriangle(void);   	  									
-		
-		MeshTriangle(Mesh* _mesh_ptr, const int i1, const int i2, const int i3);		
+    Mesh *mesh_ptr;                    // stores all the data
+    int index0, index1, index2;    // indices into the vertices array in the mesh
+    Normal normal;
+    float area;                        // required for translucency
 
-		virtual MeshTriangle* 										
-		clone(void) const = 0;
-	
-		MeshTriangle(const MeshTriangle& mt); 					
+public:
 
-		virtual
-		~MeshTriangle(void);   									
+    MeshTriangle(void);
 
-		MeshTriangle& 												
-		operator= (const MeshTriangle& rhs);
-		
-		virtual bool 												 
-		hit(const Ray& ray, double& tmin, ShadeRec& sr) const = 0;
-		
-		virtual	bool 																	
-		shadow_hit(const Ray& ray, double& tmin) const;
-		
-		void 
-		compute_normal(const bool reverse_normal);
-				
-		virtual Normal
-		get_normal(void) const;				
+    MeshTriangle(Mesh *_mesh_ptr, const int i1, const int i2, const int i3);
 
-		virtual BBox
-		get_bounding_box(void);
-		
-	protected:
-	
-		float  
-		interpolate_u(const float beta, const float gamma) const;
-		
-		float  
-		interpolate_v(const float beta, const float gamma) const;			
+    virtual MeshTriangle *clone(void) const = 0;
+
+    MeshTriangle(const MeshTriangle &mt);
+
+    virtual ~MeshTriangle(void);
+
+    MeshTriangle &operator=(const MeshTriangle &rhs);
+
+    virtual bool hit(const Ray &ray, double &tmin, ShadeRec &sr) const = 0;
+
+    virtual bool shadow_hit(const Ray &ray, double &tmin) const;
+
+    void compute_normal(const bool reverse_normal);
+
+    virtual Normal get_normal(void) const;
+
+    virtual BBox get_bounding_box(void);
+
+protected:
+
+    float interpolate_u(const float beta, const float gamma) const;
+
+    float interpolate_v(const float beta, const float gamma) const;
 };
 
 #endif
