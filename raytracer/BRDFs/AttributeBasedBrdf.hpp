@@ -91,7 +91,7 @@ public:
     [[nodiscard]] float D(const ShadeRec &sr, const Vector3D &wo, const Vector3D &wi) const {
         auto z = sr.t;
         auto z_max = r * z_min;
-        auto result = 1.0 - std::logf(z / z_min) / std::logf(r);
+        auto result = 1.0 - std::log(z / z_min) / std::log(r);
         return std::clamp(result, 0.0, 1.0); // sanitize return values in uv range.
     }
 

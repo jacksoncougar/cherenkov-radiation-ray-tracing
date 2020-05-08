@@ -12,7 +12,7 @@
 #include <cxxopts.hpp>
 #include <thread>
 
-#include "glsl.hpp"
+#include "program.hpp"
 
 void reload_render_params() {
   std::fstream fh;

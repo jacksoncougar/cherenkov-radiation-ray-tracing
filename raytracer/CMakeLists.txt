@@ -54,7 +54,7 @@ set(SRC World/ViewPlane.cpp
         Utilities/Vector3D.cpp
         UserInterface/main.cpp
         UserInterface/program.hpp
-        UserInterface/program.cpp
+        
         UserInterface/renderThread.cpp
         UserInterface/renderThread.h
         Tracers/MarchingRayTracer.cpp
