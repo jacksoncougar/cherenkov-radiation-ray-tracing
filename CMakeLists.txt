@@ -11,6 +11,8 @@ find_library(legacy legacy_stdio_definitions)
 message(${legacy})
 endif()
 
+set(legacy "")
+
 if(!MSVC)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread")
 endif()
