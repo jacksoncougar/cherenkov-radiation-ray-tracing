@@ -4,14 +4,14 @@ project(wxraytracer LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(legacy "")
+
 if(MSVC)
 # MSVC drops support for some libs we need.
 set(CMAKE_REQUIRED_LIBRARIES legacy_stdio_definitions.lib)
 find_library(legacy legacy_stdio_definitions)
-message(${legacy})
 endif()
 
-set(legacy "")
 
 if(!MSVC)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread")
@@ -49,9 +49,11 @@ set(ASSIMP_INSTALL_PDB  OFF CACHE BOOL " " FORCE)
 set(ASSIMP_BUILD_ZLIB   ON CACHE BOOL " " FORCE)
 add_subdirectory(assimp)
 
+# cxxopts
 add_library(opt INTERFACE)
 target_include_directories(opt INTERFACE 3rd-party/cxxopts/include)
 
+# stb image-write
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE 3rd-party/stb)
 
