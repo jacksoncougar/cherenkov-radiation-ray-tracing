@@ -171,14 +171,6 @@ RGBColor MarchingRayTracer::Li(Point3D x, Vector3D w, int depth,
   return trace_ray({x, w}, depth + 1);
 };
 
-// this is a ternary operator... I know that now.
-auto _if = [&](bool condition, auto result, auto default) {
-  if (condition)
-    return result;
-  else
-    return default;
-};
-
 // in-scattering radiance
 RGBColor MarchingRayTracer::Ls(Point3D x, Vector3D w, int depth,
                                World *world) const {
@@ -217,9 +209,8 @@ RGBColor MarchingRayTracer::Sample(Point3D x, Point3D y, float t, Vector3D w,
 
   auto ga = getParameters(depth).gather_absorption;
   auto gs = getParameters(depth).gather_scattering;
-  return T_r(t) / p(t) *
-         (_if(ga, mu_a(t) * Le(y, w, world), RGBColor{0}) +
-          _if(gs, mu_s(t) * Ls(y, w, depth, world), RGBColor{0}));
+  return T_r(t) / p(t) * (ga ? mu_a(t) * Le(y, w, world) : RGBColor{0}) +
+         (gs ? mu_s(t) * Ls(y, w, depth, world) : RGBColor{0});
 };
 
 RGBColor MarchingRayTracer::monte_carlo(Point3D x, Vector3D w, int depth,
