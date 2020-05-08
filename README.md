@@ -5,39 +5,32 @@
 ![](images/example.png)
 
 ## Project Dependencies
-- GLFW 3 
-- OpenglGL
+
+- GLFW 3    - https://www.glfw.org/
+- OpenglGL  - https://www.opengl.org/
+- cxxopts   - https://github.com/jarro2783/cxxopts
+- nanogui   - https://github.com/wjakob/nanogui
+- glad      - https://glad.dav1d.de/
+- assimp    - http://assimp.org/
 
 ## Build instructions (CMake)
+
+IMPORTANT: Clone the project recursively; some dependancies are via git submodules.
+    `git clone https://github.com/jacksoncougar/wxRayTracer.git --recursive`
 
 Building from the command line:
 
     cd wxRayTracer
-    mkdir out
+    mkdir build
+    cd build
     cmake ../
     
 ## Synopsis 
 
-Run the program with two arguments from the command line:
 
-    tracer ATTRIBUTE_IMAGE_FILENAME PLY_MODEL_FILENAME
   
 ## Controls
 
-    W       move camera upwards
-    S       move camera downwards
-    
-    UP      scale subject up
-    DOWN    scale subject down
-    
-    F1      load silhouette material
-    F2      load highlighting material
-    F3      load depth material
-    
-    -       decrement primary material parameter
-    +       increment primary material parameter
-    PgDn    decrement secondary material parameter (depth only)
-    PgUp    increment secondary material parameter (depth only)
     
 ## Code reuse
 

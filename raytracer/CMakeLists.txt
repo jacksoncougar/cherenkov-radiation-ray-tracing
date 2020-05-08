@@ -3,7 +3,9 @@ project(tracer LANGUAGES C CXX)
 
 message(STATUS ${MSVC_TOOLSET_VERSION})
 
-find_package(glfw3 REQUIRED)
+if(NOT GLFW3_FOUND)
+    find_package(glfw3 REQUIRED)
+endif()
 find_package(OpenGL REQUIRED)    
 find_package(assimp REQUIRED)
 
