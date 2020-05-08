@@ -2,6 +2,8 @@
     University of Calgary Winter 2020: Term Project
     Jackson Cougar Wiebe
 
+GitHub: https://github.com/jacksoncougar/wxRayTracer
+
 <figure class="image">
   <img src="images/result.png" alt="example render">
   <figcaption>Example denoised render</figcaption>
