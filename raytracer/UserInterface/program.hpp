@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include <glad/glad.h>
-
+// glad must appear before GLFW
 #include "GLFW/glfw3.h"
 
 #include <iostream>
@@ -50,7 +50,7 @@
 #include <nanogui/colorpicker.h>
 #include <nanogui/graph.h>
 #include <nanogui/tabwidget.h>
-#include <nanogui\formhelper.h>
+#include <nanogui/formhelper.h>
 #include <MarchingRayTracer.hpp>
 #include <iomanip>
 #include <Emissive.h>
@@ -196,12 +196,6 @@ struct program : public nanogui::Screen {
 		scale_factor = std::max({ dx, dy, dz }) / 10.0f;
 
 		auto z_min = std::min(bbox.z0, bbox.z1);
-
-		// move the center of the subject to origin
-		double ox = -bbox.x0 - dx;
-		double oy = -bbox.y0 - dy;
-		double oz = -bbox.z0 - dz;
-		//subject->translate(ox, 0.0f, oz);
 
 		camera_position = params.camera_position;
 		look_at_subject();
