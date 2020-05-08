@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include <glad/glad.h>
-
+// glad must appear before GLFW
 #include "GLFW/glfw3.h"
 
 #include <iostream>
