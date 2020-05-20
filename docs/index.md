@@ -5,9 +5,13 @@
 GitHub: https://github.com/jacksoncougar/wxRayTracer
 
 <figure class="image">
-  <img src="images/result.png" alt="example render">
+  <img src="../images/result.png" alt="example render">
   <figcaption>Example denoised render</figcaption>
 </figure>
+
+## Presentation
+
+https://drive.google.com/file/d/1HPThW1gW6hamsqJHkLetl_HN1GwC-xlU/view?usp=sharing
 
 ## Project Dependencies
 
@@ -70,6 +74,7 @@ Building from the command line:
 ## Controls
 
 <dt>ESC<dt> <dd>Hides the GUI elements </dd>
+
 
 ## Statement of code reuse
 
